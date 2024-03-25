@@ -9,8 +9,7 @@ import {
   Button,
 } from '@material-tailwind/react'
 
-const SearchBar = () => {
-  const filters = ['filter1', 'filter2']
+const SearchBar = ({filters}) => {
 
   const [selectedFilter, setSelectedFilter] = useState(filters[0])
   const [openMenu, setOpenMenu] = useState(false)

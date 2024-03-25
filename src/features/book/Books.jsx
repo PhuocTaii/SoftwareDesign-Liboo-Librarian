@@ -7,6 +7,7 @@ import { MdEdit } from 'react-icons/md';
 import { FaTrash } from 'react-icons/fa';
 import dummyImage from '../../assets/book.png';
 import Pagination from '../../components/Pagination';
+import SearchBar from '../../components/SearchBar';
 
 
 const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed', '', ''];
@@ -25,6 +26,7 @@ const generateGenre = () => {
   const randomIndex = Math.floor(Math.random() * genres.length);
   return [genres[randomIndex]];
 };
+
 
 // Book page
 const Books = () => {
@@ -48,8 +50,36 @@ const Books = () => {
     setData(dummyData);
   }, []);
 
+  const filterSearch = ['name', 'ISBN', 'author', 'publisher', 'genre']
+  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
+
+  const handleSearch = (e) => {
+    // const searchTerm = e.target.value;
+    // if (searchTerm === '') {
+    //   setBookData(bookList);
+    //   return;
+    // }
+    // const searchedBooks = bookList.filter((book) => {
+    //   if (selectedFilter === 'genre') {
+    //     return book[selectedFilter].some((genre) => genre.toLowerCase().includes(searchTerm.toLowerCase()));
+    //   }
+    //   else
+    //     return book[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase())
+    // });
+    // setBookData(searchedBooks);
+  }
+
   return (
     <div className={`flex w-full h-full flex-col`}>    
+     <div className='w-full px-4 py-3'>
+      <div className='flex justify-end pl-14'>
+        <SearchBar   
+          filters={filterSearch} 
+          onClick={(e) => setSelectedFilter(e.target.value)} 
+          onChange={handleSearch}
+        />
+      </div>
+     </div>
       <div className='flex justify-between py-4'>
         <p className='font-semibold text-2xl'>Book list</p>
         <Button
