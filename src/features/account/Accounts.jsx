@@ -7,6 +7,8 @@ import { FaTrash, FaUserPlus } from 'react-icons/fa';
 import { BiUserCircle, BiChevronLeft, BiChevronRight } from 'react-icons/bi';
 import { MdEdit } from 'react-icons/md'
 import Pagination from '../../components/Pagination';
+import SearchBar from '../../components/SearchBar';
+
 
 
 const TABLE_HEAD = ['', 'Username', 'Name', 'ID', 'Birthdate', 'Gender', 'Email', 'Address', 'Reg. date', 'Exp. date', 'Membership' ,'', ''];
@@ -33,10 +35,32 @@ const Accounts = () => {
     setData(dummyData);
   }, []);
 
-  // const records = data;
+  const filterSearch = ['name', 'username']
+  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
+
+  const handleSearch = (e) => {
+    // const searchTerm = e.target.value;
+    // if (searchTerm === '') {
+    //   setReaderData(readerList);
+    //   return;
+    // }
+    // const searchedReaders = readerList.filter((reader) => reader[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase()));
+    // setReaderData(searchedReaders);
+  }
+
 
   return (
     <div className={`flex w-full h-full flex-col`}>
+      <div className='w-full px-4 py-3'>
+        {/* Search bar */}
+        <div className='flex justify-end pl-14'>
+          <SearchBar 
+            filters={filterSearch} 
+            onClick={(e) => setSelectedFilter(e.target.value)} 
+            onChange={handleSearch}
+          />
+        </div>
+      </div>
       <div className='flex justify-between py-4 w-full'>
           <p className='font-semibold text-2xl'>Reader list</p>
           <Button
