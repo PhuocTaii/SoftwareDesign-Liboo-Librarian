@@ -6,6 +6,8 @@ import { FaTrash } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import {formatDate} from '../../helpers/dateFormat';
 import { BiChevronLeft, BiChevronRight, BiDotsHorizontalRounded, BiRefresh } from 'react-icons/bi';
+import SearchBar from '../../components/SearchBar';
+
 
 
 const EXPIRATION = 7;
@@ -48,6 +50,28 @@ const Borrow = () => {
     setSlip({username:'', isbns: [], borrowDate: formatDate(today), dueDate: calcDueDate(today)})
   };
 
+  const filterSearch = ['username', 'ISBN']
+  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
+
+  const handleSearch = (e) => { //TODO: Uncomment and add search function
+    // const searchTerm = e.target.value;
+    // if (searchTerm === '') {
+    //   setBorrowData(slipList);
+    //   return;
+    // }
+    // const searchedData = slipList.filter((d) =>
+    //   {
+    //     if (selectedFilter === 'ISBN') {
+    //       return d.borrowList.some((book) => book.book[selectedFilter].includes(searchTerm));
+    //     }
+    //     else {
+    //       return d.UserID[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase())
+    //     }
+    //   }
+    // );
+    // setBorrowData(searchedData);
+  }
+
   // const showDetailBorrow = (selectedRecord) => {
   //   setSlip({
   //     _id: selectedRecord._id,
@@ -63,41 +87,43 @@ const Borrow = () => {
   //   setSlip({username:'', isbns: [], borrowDate: formatDate(today), dueDate: calcDueDate(today)})
   // }
 
-  // const [borrowData, setBorrowData] = useState(slipList)
+  // const [borrowData, setBorrowData] = useState(slipList) //TODO: Dung cai nay, nhung ma du lieu lay tu database len
+  const [borrowData, setBorrowData] = useState([])
 
-  // const generateUsername = () => {
-  //   const adjectives = ['Happy', 'Sunny', 'Brave', 'Clever', 'Gentle', 'Kind', 'Bright', 'Calm', 'Lively', 'Wise'];
-  //   const nouns = ['Panda', 'Tiger', 'Lion', 'Elephant', 'Giraffe', 'Kangaroo', 'Koala', 'Monkey', 'Owl', 'Zebra'];
-  //   const randomAdjectiveIndex = Math.floor(Math.random() * adjectives.length);
-  //   const randomNounIndex = Math.floor(Math.random() * nouns.length);
-  //   return `${adjectives[randomAdjectiveIndex]}${nouns[randomNounIndex]}`;
-  // };
+  const generateUsername = () => {
+    const adjectives = ['Happy', 'Sunny', 'Brave', 'Clever', 'Gentle', 'Kind', 'Bright', 'Calm', 'Lively', 'Wise'];
+    const nouns = ['Panda', 'Tiger', 'Lion', 'Elephant', 'Giraffe', 'Kangaroo', 'Koala', 'Monkey', 'Owl', 'Zebra'];
+    const randomAdjectiveIndex = Math.floor(Math.random() * adjectives.length);
+    const randomNounIndex = Math.floor(Math.random() * nouns.length);
+    return `${adjectives[randomAdjectiveIndex]}${nouns[randomNounIndex]}`;
+  };
   
-  // // Function to generate random ISBN number
-  // const generateISBN = () => {
-  //   const characters = '0123456789';
-  //   let result = '';
-  //   for (let i = 0; i < 10; i++) {
-  //     result += characters.charAt(Math.floor(Math.random() * characters.length));
-  //   }
-  //   return `${result}`;
-  // };
+  // Function to generate random ISBN number
+  const generateISBN = () => {
+    const characters = '0123456789';
+    let result = '';
+    for (let i = 0; i < 10; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return `${result}`;
+  };
   
-  // // Function to generate random date within a range
-  // const generateRandomDate = (start, end) => {
-  //   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-  // };
+  // Function to generate random date within a range
+  const generateRandomDate = (start, end) => {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  };
 
-  // useEffect(() => {
-  //   // Dummy data creation
-  //   const dummyData = Array.from({ length: 10 }, (_, index) => ({
-  //     _id: index + 1,
-  //     username: generateUsername(),
-  //     ISBN: generateISBN(),
-  //     receivedDate: formatDate(generateRandomDate(new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000), currentDate)), // Random date in the last 30 days
-  //   }));
-  //   setData(dummyData);
-  // }, []);
+  useEffect(() => {
+    // Dummy data creation
+    const currentDate = new Date(); // Current date
+    const dummyData = Array.from({ length: 10 }, (_, index) => ({
+      _id: index + 1,
+      username: generateUsername(),
+      ISBN: generateISBN(),
+      receivedDate: formatDate(generateRandomDate(new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000), currentDate)), // Random date in the last 30 days
+    }));
+    setBorrowData(dummyData);
+  }, []);
 
   return (
     <div className="flex flex-col w-full h-full pl-16 pr-8 pt-3 pb-3 gap-8">
@@ -177,6 +203,56 @@ const Borrow = () => {
               onChange={handleSearch}
             />
           </div>
+          <table className="w-full min-w-max table-auto text-left">
+            <thead className='sticky top-0'>
+              <tr>
+                {TABLE_HEAD.map((head, index) => (
+                  <th key={index} className="border-b border-blue-gray-100 bg-blue-gray-50 px-2 py-4">
+                    <p className="leading-none opacity-70">{head}</p>
+                  </th>
+                ))}
+              </tr>  
+            </thead>
+            <tbody>
+              {borrowData?.map((record, index) => (
+                <tr key={index} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
+                  <td className="p-2">
+                    {/* <p>{record?.UserID?.username}</p> */}
+                    <p>{record.username}</p>
+                  </td>
+                  <td className="p-2">
+                    {/* <p>{record?.borrowList?.map((b) => b.book?.ISBN)?.join(', ')}</p> */}
+                    <p>{record.ISBN}</p>
+                  </td>
+                  <td className="p-2">
+                    {/* <p>{formatDate(record.borrowDate)}</p> */}
+                    <p>{record.receivedDate}</p>
+                  </td>             
+                  <td className="p-2 space-x-6 text-right">
+                    {/* <button 
+                      onClick={() =>
+                        showDetailBorrow(record)
+                      }
+                    >
+                      <BiDotsHorizontalRounded />
+                    </button> */}
+                    <button>
+                      <BiDotsHorizontalRounded />
+                    </button>
+                    {/* <button 
+                      onClick={() => {setToggleDelete(true); setSelectedRequest(record)}}
+                    >
+                      <FaTrash />
+                    </button> */}
+                    <button>
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination/>
        </div>
     </div>
   )
