@@ -116,13 +116,13 @@ const MenuSidebar = () => {
         </motion.div>
       )}
 
-      <motion.button
+      {toggle && <motion.button
         className="absolute top-2 left-4"
         onClick={(e) => handleToggleMenu(e)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ rotate: 360, transition: { duration: 0.5 } }}>
         <BiX size="2.5rem" color="white" />
-      </motion.button>
+      </motion.button>}
     </div>
   )
 }

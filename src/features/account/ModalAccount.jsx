@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Button,
   Dialog,
   DialogHeader,
   DialogBody,
@@ -9,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomButton from "../../components/CustomButton";
-import { BiX, BiEditAlt } from "react-icons/bi";
+import { BiX, BiEditAlt, BiSolidInfoCircle } from "react-icons/bi";
 import { formatDate } from '../../helpers/dateFormat';
 
 const ModalAccount = ({open, handleOpen, type}) => {
@@ -22,7 +23,7 @@ const ModalAccount = ({open, handleOpen, type}) => {
       name: "",
       id: "",
       birthday: "",
-      gender: "Male",
+      sex: "Male",
       email: "",
       address: "",
       makingDay: today,
