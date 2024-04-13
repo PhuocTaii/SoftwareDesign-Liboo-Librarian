@@ -8,7 +8,10 @@ import { FaTrash } from 'react-icons/fa';
 import dummyImage from '../../assets/book.png';
 import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
-
+import { Select, Option } from '@material-tailwind/react';
+import CustomButton from '../../components/CustomButton';
+import ModalBook from './ModalBook';
+import DialogConfirm from '../../components/DialogConfirm';
 
 const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed', '', ''];
 
@@ -26,7 +29,6 @@ const generateGenre = () => {
   const randomIndex = Math.floor(Math.random() * genres.length);
   return [genres[randomIndex]];
 };
-
 
 // Book page
 const Books = () => {
@@ -52,6 +54,7 @@ const Books = () => {
 
   const filterSearch = ['name', 'ISBN', 'author', 'publisher', 'genre']
   const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
+  const [selectedSort, setSelectedSort] = useState('none');
 
   const handleSearch = (e) => {
     // const searchTerm = e.target.value;
@@ -69,27 +72,50 @@ const Books = () => {
     // setBookData(searchedBooks);
   }
 
+  const [openModal, setOpenModal] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
+
+  const [modalType, setModalType] = useState(0) // 0: Add, 1: Edit
+
   return (
     <div className={`flex w-full h-full flex-col`}>    
-     <div className='w-full px-4 py-3'>
-      <div className='flex justify-end pl-14'>
-        <SearchBar   
+      <div className='w-full flex justify-between gap-4'>
+        <SearchBar 
           filters={filterSearch} 
           onClick={(e) => setSelectedFilter(e.target.value)} 
           onChange={handleSearch}
         />
+        <div className="w-72">
+          <Select 
+            label="Sort by"
+            value={selectedSort}
+            onChange={(e) => {setSelectedSort(e.value)}}
+          >
+            <Option value="none">None</Option>
+            <Option value="quant-low-high">Quantity: Low - High</Option>
+            <Option value="quant-high-low">Quantity: High - Low</Option>
+            <Option value="borrowed-low-high">Borrowed: Low - High</Option>
+            <Option value="borrowed-high-low">Borrowed: High - Low</Option>
+            <Option value="name-a-z">Name: A-Z</Option>
+            <Option value="name-z-a">Name: Z-A</Option>
+          </Select>
+        </div>
       </div>
-     </div>
       <div className='flex justify-between py-4'>
         <p className='font-semibold text-2xl'>Book list</p>
-        <Button
-          className="flex items-center gap-3" 
-          size="sm" 
-          style={{backgroundImage: `linear-gradient(to right, var(--my-red), var(--my-orange)`}}
-          // onClick={() => dispatch(setShowAddBook())}
-        >
-          <BiSolidBookAdd className="h-4 w-4" /> Add book
-        </Button>
+        <CustomButton 
+            label= {
+              <div className="flex items-center gap-3">
+                <BiSolidBookAdd className="h-4 w-4" /> Add book
+              </div>
+            }
+            onClick={() => {
+              setOpenModal(!openModal)
+              setModalType(0)
+            }}
+            classes={"w-fit"}
+          >
+          </CustomButton>
       </div>  
       <div className='w-full min-h-max overflow-x-scroll'>
         <table className="w-full min-w-max table-auto text-left">
@@ -139,27 +165,15 @@ const Books = () => {
                   <p>{record.borrowed}</p>
                 </td>              
                 <td className="p-2">
-                  {/* <button 
-                  onClick={() => {
-                    dispatch(setUpdatedBook(record))
-                    dispatch(setShowUpdateBook()); 
-                  }}>
-                    <MdEdit />
-                  </button> */}
-                  <button>
-                    <MdEdit />
-                  </button>
+                  <MdEdit 
+                    className="hover:cursor-pointer" 
+                    onClick={() => {
+                      setOpenModal(!openModal)
+                      setModalType(1)
+                    }}/>
                 </td>
                 <td className="p-2">
-                  {/* <button onClick={() => {
-                    dispatch(setUpdatedBook(record))
-                    dispatch(setShowDeleteBook()); 
-                  }}>
-                    <FaTrash />
-                  </button> */}
-                  <button>
-                    <FaTrash />
-                  </button>
+                  <FaTrash className="hover:cursor-pointer" onClick={() => setOpenConfirm(!openConfirm)}/>
                 </td>
               </tr>
             ))}
@@ -167,6 +181,9 @@ const Books = () => {
         </table>
       </div>
       <Pagination/>
+
+      <ModalBook open={openModal} handleOpen={() => setOpenModal(!openModal)} type={modalType} />
+      <DialogConfirm open={openConfirm} handleOpen={() => setOpenConfirm(!openConfirm)}></DialogConfirm>
     </div>
   )
 }

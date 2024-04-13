@@ -4,22 +4,25 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import {formatDate} from '../../helpers/dateFormat';
 import { FaTrash, FaUserPlus } from 'react-icons/fa';
-import { BiUserCircle, BiChevronLeft, BiChevronRight } from 'react-icons/bi';
+import { BiUserCircle } from 'react-icons/bi';
 import { MdEdit } from 'react-icons/md'
 import Pagination from '../../components/Pagination';
+import SearchBar from '../../components/SearchBar';
+import ModalAccount from './ModalAccount';
+import CustomButton from '../../components/CustomButton';
+import DialogConfirm from '../../components/DialogConfirm';
+import { Select, Option } from '@material-tailwind/react';
 
+const TABLE_HEAD = ['', 'Name', 'ID', 'Birthdate', 'Gender', 'Email', 'Address', 'Reg. date', 'Exp. date', 'Membership' ,'', ''];
 
-const TABLE_HEAD = ['', 'Username', 'Name', 'ID', 'Birthdate', 'Gender', 'Email', 'Address', 'Reg. date', 'Exp. date', 'Membership' ,'', ''];
-// Account page
 const Accounts = () => {
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [data, setData] = useState([]);
   useEffect(() => {
     // Dummy data creation
     const dummyData = Array.from({ length: 10 }, (_, index) => ({
       _id: index + 1,
-      username: `user${index + 1}`,
       name: `User Name ${index + 1}`,
       id: `ID-${index + 1}`,
       birthdate: `19${Math.floor(Math.random() * 10) + 70}-0${Math.floor(Math.random() * 9) + 1}-0${Math.floor(Math.random() * 9) + 1}`, // Random birthdate between 1970 and 1979
@@ -33,20 +36,62 @@ const Accounts = () => {
     setData(dummyData);
   }, []);
 
-  // const records = data;
+  const filterSearch = ['name', 'username']
+  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
+  const [selectedSort, setSelectedSort] = useState('newest');
+
+  const handleSearch = (e) => {
+    // const searchTerm = e.target.value;
+    // if (searchTerm === '') {
+    //   setReaderData(readerList);
+    //   return;
+    // }
+    // const searchedReaders = readerList.filter((reader) => reader[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase()));
+    // setReaderData(searchedReaders);
+  }
+
+  const [openModal, setOpenModal] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
+
+  const [modalType, setModalType] = useState(0) // 0: Add, 1: Edit
 
   return (
     <div className={`flex w-full h-full flex-col`}>
-      <div className='flex justify-between py-4 w-full'>
-          <p className='font-semibold text-2xl'>Reader list</p>
-          <Button
-            className="flex items-center gap-3" 
-            size="sm" 
-            style={{backgroundImage: `linear-gradient(to right, var(--my-red), var(--my-orange)`}}
-            // onClick={() => dispatch(setShowAddReader())}
+      {/* Search bar */}
+      <div className='w-full flex justify-between gap-4'>
+        <SearchBar 
+          filters={filterSearch} 
+          onClick={(e) => setSelectedFilter(e.target.value)} 
+          onChange={handleSearch}
+        />
+        <div className="w-72">
+          <Select 
+            label="Sort by"
+            value={selectedSort}
+            onChange={(e) => {setSelectedSort(e.value)}}
           >
-            <FaUserPlus strokeWidth={2} className="h-4 w-4" /> Add member
-          </Button>
+            <Option value="newest">Registration date: Newest</Option>
+            <Option value="oldest">Registration date: Oldest</Option>
+            <Option value="name-a-z">Name: A-Z</Option>
+            <Option value="name-z-a">Name: Z-A</Option>
+          </Select>
+        </div>
+      </div>
+      <div className='flex justify-between py-4'>
+          <p className='font-semibold text-2xl'>Reader list</p>
+          <CustomButton 
+            label= {
+              <div className="flex items-center gap-3">
+                <FaUserPlus strokeWidth={2} className="h-4 w-4" /> Add member
+              </div>
+            }
+            onClick={() => {
+              setOpenModal(!openModal)
+              setModalType(0)
+            }}
+            classes={"w-fit"}
+          >
+          </CustomButton>
       </div>
       <div className='w-full min-h-max overflow-x-scroll'>
         <table className="w-full min-w-max table-auto text-left">
@@ -67,9 +112,6 @@ const Accounts = () => {
                   <BiUserCircle className='w-full h-full' /> :
                   <img src={record.image} alt="logo" className="w-full h-full rounded-full object-cover shrink-0" />
                   }
-                </td>
-                <td className="p-2">
-                  <p>{record.username}</p>
                 </td>
                 <td className="p-2">
                   <p>{record.name}</p>
@@ -99,20 +141,15 @@ const Accounts = () => {
                   <p>{record.membership}</p>
                 </td>              
                 <td className="p-2">
-                  {/* <button onClick={() => {dispatch(setUpdatedReader(record)); dispatch(setShowUpdateReader())}}>
-                    <MdEdit />
-                  </button> */}
-                  <button>
-                    <MdEdit/>
-                  </button>
+                    <MdEdit 
+                      className="hover:cursor-pointer" 
+                      onClick={() => {
+                        setOpenModal(!openModal)
+                        setModalType(1)
+                      }}/>
                 </td>
                 <td className="p-2">
-                  {/* <button onClick={() => {dispatch(setUpdatedReader(record)); dispatch(setShowDeleteReader())}}>
-                    <FaTrash />
-                  </button> */}
-                  <button>
-                    <FaTrash/>
-                  </button>
+                    <FaTrash className="hover:cursor-pointer" onClick={() => setOpenConfirm(!openConfirm)}/>
                 </td>
               </tr>
             ))}
@@ -120,6 +157,9 @@ const Accounts = () => {
         </table>
       </div>
       <Pagination/>
+
+      <ModalAccount open={openModal} handleOpen={() => setOpenModal(!openModal)} type={modalType} />
+      <DialogConfirm open={openConfirm} handleOpen={() => setOpenConfirm(!openConfirm)}></DialogConfirm>
     </div>
   )
 }
