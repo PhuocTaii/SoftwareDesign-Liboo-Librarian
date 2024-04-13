@@ -89,7 +89,7 @@ const Books = () => {
           <Select 
             label="Sort by"
             value={selectedSort}
-            onChange={(e) => {setSelectedSort(e.value)}}
+            onChange={(e) => setSelectedSort(e)}
           >
             <Option value="none">None</Option>
             <Option value="quant-low-high">Quantity: Low - High</Option>

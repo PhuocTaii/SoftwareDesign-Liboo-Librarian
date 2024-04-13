@@ -68,7 +68,7 @@ const Accounts = () => {
           <Select 
             label="Sort by"
             value={selectedSort}
-            onChange={(e) => {setSelectedSort(e.value)}}
+            onChange={(e) => setSelectedSort(e)}
           >
             <Option value="newest">Registration date: Newest</Option>
             <Option value="oldest">Registration date: Oldest</Option>
