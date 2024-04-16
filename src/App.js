@@ -6,7 +6,8 @@ import Accounts from './features/account/Accounts'
 import Books from './features/book/Books'
 import Borrow from './features/transaction/Borrow'
 import Return from './features/transaction/Return'
-import Statistic from './features/statistic/Statistic'
+import Dashboard from './features/dashboard/Dashboard'
+import History from './features/dashboard/History'
 
 const App = () => {
   return (
@@ -16,11 +17,12 @@ const App = () => {
           <Route path="login" element={<Login />} />
         </Route>
         <Route element={<MainLayout />}>
-          <Route index element={<Accounts />} />
+          <Route index element={<Dashboard />} />
+          <Route path="readers" element={<Accounts />} />
           <Route path="books" element={<Books />} />
           <Route path="borrow" element={<Borrow />} />
           <Route path="return" element={<Return />} />
-          <Route path="statistics" element={<Statistic />} />
+          <Route path="history" element={<History />} />
         </Route>
       </Route>
     </Routes>
