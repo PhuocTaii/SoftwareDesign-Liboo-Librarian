@@ -10,7 +10,7 @@ import {
 } from "@material-tailwind/react";
 import CustomRadioButton from "../../components/CustomRadioButton";
 import CustomButton from "../../components/CustomButton";
-import { BiX, BiEditAlt, BiSolidInfoCircle } from "react-icons/bi";
+import { BiX, BiEditAlt, BiCloudUpload } from "react-icons/bi";
 import { formatDate } from '../../helpers/dateFormat';
 
 const ModalAccount = ({open, handleOpen, type}) => {
@@ -49,26 +49,31 @@ const ModalAccount = ({open, handleOpen, type}) => {
           <BiX className="mr-3 h-8 w-8 hover:cursor-pointer" onClick={handleOpen} />
         </div>
         <DialogBody className="py-0">
-          <div className="relative w-16 h-16 mb-4">
-            {/* {!account.image ? 
-            <BiUserCircle className='w-full h-full' /> :
-            <img src={account?.image} alt="upload" className="object-cover w-full h-full rounded-full" />
-            } */}
-            <img src="https://i.pinimg.com/736x/b9/c4/7e/b9c47ef70bff06613d397abfce02c6e7.jpg" alt="upload" className="object-cover w-full h-full rounded-full" />
-            <div
-              className="absolute bottom-1 -right-0.5 w-5 h-5 rounded-full bg-red flex items-center justify-center"
-            >
-              <input 
-                type="file" 
-                accept="image/png,image/jpeg" 
-                className="hidden" 
-                // onChange={changePhoto}
-              />
-              <BiEditAlt 
-                className="text-white hover:cursor-pointer" 
-                onClick={() => document.querySelector('input[type="file"]').click()} 
-              />
-            </div>
+          <div 
+            className="relative w-16 h-16 mb-4 hover:cursor-pointer"
+            onClick={() => document.querySelector('input[type="file"]').click()}
+          >
+            {!account.image ? 
+              <div className="w-full h-full bg-blue-gray-100 rounded-full flex items-center justify-center">
+                <BiCloudUpload size="2rem" />
+              </div>:
+              <>
+                <img src={account?.image} alt="upload" className="object-cover w-full h-full rounded-full" />
+                <div
+                  className="absolute bottom-1 -right-0.5 w-5 h-5 rounded-full bg-red flex items-center justify-center"
+                >
+                  <BiEditAlt 
+                    className="text-white" 
+                  />
+                </div>
+              </>
+            }
+            <input 
+              type="file" 
+              accept="image/png,image/jpeg" 
+              className="hidden" 
+              // onChange={changePhoto}
+            />
           </div>
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-4">
           <Input
