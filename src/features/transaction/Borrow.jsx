@@ -158,8 +158,8 @@ const Borrow = () => {
           <div className='col-span-2'>
             <Input
               variant="standard"  
-              label="Name"
-              name="name"
+              label="Email"
+              name="email"
               value={slip.username}
               onChange={handleChangeInfo}
               required

@@ -37,8 +37,8 @@ const Return = () => {
         <div className="grid grid-cols-2 gap-5">
           <Input
             variant="standard"
-            label="Username"
-            name="username"
+            label="Email"
+            name="email"
             value={slip.username}
             onChange={handleChangeInfo}
             required
