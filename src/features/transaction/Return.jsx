@@ -31,7 +31,7 @@ const Return = () => {
   const [diffDays, setDiffDays] = useState(0)
   const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
   return (
-    <div className="flex flex-col w-full h-full px-4 pt-12 pb-3 gap-8">
+    <div className="flex flex-col w-full h-full gap-8">
       <form className="w-full space-y-5" onSubmit={(e) => handleReturn(e)}>
         <p className="text-2xl font-semibold">RETURN BOOKS</p>
         <div className="grid grid-cols-2 gap-5">

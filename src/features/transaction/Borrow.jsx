@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import {Input} from "@material-tailwind/react";
+import {Input, Select, Option} from "@material-tailwind/react";
 import CustomButton from "../../components/CustomButton";
 import Pagination from '../../components/Pagination';
 import { FaTrash } from 'react-icons/fa';
@@ -7,11 +7,24 @@ import { useDispatch, useSelector } from 'react-redux';
 import {formatDate} from '../../helpers/dateFormat';
 import { BiChevronLeft, BiChevronRight, BiDotsHorizontalRounded, BiRefresh } from 'react-icons/bi';
 import SearchBar from '../../components/SearchBar';
-
-
+import ModalRequest from './ModalRequest';
+import DialogConfirm from '../../components/DialogConfirm';
 
 const EXPIRATION = 7;
-const TABLE_HEAD = ['Username', 'ISBN', 'Received date', ''];
+const TABLE_HEAD = ['Name', 'ISBN', 'Received date', 'Status', ''];
+
+const StatusChip = ({status}) => {
+  switch (status) {
+    case 'Pending':
+      return <div className="px-2 py-1 bg-gray-300 rounded-full text-xs w-20 flex justify-center">Pending</div>
+    case 'Rejected':
+      return <div className="px-2 py-1 bg-deep-orange-400 rounded-full text-xs w-20 flex justify-center">Rejected</div>
+    case 'Accepted':
+      return <div className="px-2 py-1 bg-amber-400 rounded-full text-xs w-20 flex justify-center">Accepted</div>
+    default:
+      return <div className="px-2 py-1 bg-green-200 rounded-full text-xs w-20 flex justify-center">Done</div>
+  }
+}
 
 // Borrow page
 const Borrow = () => {
@@ -50,7 +63,7 @@ const Borrow = () => {
     setSlip({username:'', isbns: [], borrowDate: formatDate(today), dueDate: calcDueDate(today)})
   };
 
-  const filterSearch = ['username', 'ISBN']
+  const filterSearch = ['name', 'ISBN']
   const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
 
   const handleSearch = (e) => { //TODO: Uncomment and add search function
@@ -125,9 +138,13 @@ const Borrow = () => {
     setBorrowData(dummyData);
   }, []);
 
+  const [openRequest, setOpenRequest] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
   return (
-    <div className="flex flex-col w-full h-full pl-16 pr-8 pt-3 pb-3 gap-8">
-       <form className="w-full space-y-5" onSubmit={(e) => handleBorrow(e)}>
+    <div className="flex flex-col w-full h-full gap-8">
+      <form className="w-full space-y-5" onSubmit={(e) => handleBorrow(e)}>
         <div className='flex justify-between'>
           <p className="text-2xl font-semibold">BORROW BOOKS</p>
             {/* <button onClick={(e) => refreshBorrow(e)}>
@@ -141,8 +158,8 @@ const Borrow = () => {
           <div className='col-span-2'>
             <Input
               variant="standard"  
-              label="Username"
-              name="username"
+              label="Name"
+              name="name"
               value={slip.username}
               onChange={handleChangeInfo}
               required
@@ -193,15 +210,28 @@ const Borrow = () => {
         <div className="flex justify-center pt-3">
           <CustomButton label="Done" type="submit" />
         </div>
-       </form>
-       <div className='w-full space-y-3'>
+      </form>
+      <div className='w-full space-y-3'>
           <div className='flex justify-between'>
-            <p className='text-2xl font-semibold'>REQUESTS</p>
-            <SearchBar 
-              filters={filterSearch}
-              onClick={(e) => setSelectedFilter(e.target.value)} 
-              onChange={handleSearch}
-            />
+            <p className='text-2xl font-semibold'>PENDING REQUESTS</p>
+            <div className='flex gap-2'>
+              <SearchBar 
+                filters={filterSearch}
+                onClick={(e) => setSelectedFilter(e.target.value)} 
+                onChange={handleSearch}
+              />
+              <div className="w-48">
+                <Select 
+                  label="Filter by"
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e)}
+                >
+                  <Option value="all">All</Option>
+                  <Option value="pending">Pending</Option>
+                  <Option value="accepted">Accepted</Option>
+                </Select>
+              </div>
+            </div>
           </div>
           <table className="w-full min-w-max table-auto text-left">
             <thead className='sticky top-0'>
@@ -211,49 +241,53 @@ const Borrow = () => {
                     <p className="leading-none opacity-70">{head}</p>
                   </th>
                 ))}
-              </tr>  
+              </tr>
             </thead>
             <tbody>
               {borrowData?.map((record, index) => (
-                <tr key={index} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
-                  <td className="p-2">
+                <tr 
+                  key={index} 
+                  className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30 hover:cursor-pointer"
+                >
+                  <td 
+                    className="p-2"
+                    onClick={() => setOpenRequest(!openRequest)}
+                  >
                     {/* <p>{record?.UserID?.username}</p> */}
                     <p>{record.username}</p>
                   </td>
-                  <td className="p-2">
+                  <td 
+                    className="p-2"
+                    onClick={() => setOpenRequest(!openRequest)}
+                  >
                     {/* <p>{record?.borrowList?.map((b) => b.book?.ISBN)?.join(', ')}</p> */}
                     <p>{record.ISBN}</p>
                   </td>
-                  <td className="p-2">
+                  <td 
+                    className="p-2"
+                    onClick={() => setOpenRequest(!openRequest)}
+                  >
                     {/* <p>{formatDate(record.borrowDate)}</p> */}
                     <p>{record.receivedDate}</p>
-                  </td>             
+                  </td>
+                  <td 
+                    className="p-2"
+                    onClick={() => setOpenRequest(!openRequest)}
+                  >
+                    <StatusChip status='Pending' />
+                  </td>
                   <td className="p-2 space-x-6 text-right">
-                    {/* <button 
-                      onClick={() =>
-                        showDetailBorrow(record)
-                      }
-                    >
-                      <BiDotsHorizontalRounded />
-                    </button> */}
-                    <button>
-                      <BiDotsHorizontalRounded />
-                    </button>
-                    {/* <button 
-                      onClick={() => {setToggleDelete(true); setSelectedRequest(record)}}
-                    >
-                      <FaTrash />
-                    </button> */}
-                    <button>
-                      <FaTrash />
-                    </button>
+                    <FaTrash onClick={() => setOpenConfirm(!openConfirm)} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <Pagination/>
-       </div>
+
+          <ModalRequest open={openRequest} handleOpen={() => setOpenRequest(!openRequest)}></ModalRequest>
+          <DialogConfirm open={openConfirm} handleOpen={() => setOpenConfirm(!openConfirm)}></DialogConfirm>
+      </div>
     </div>
   )
 }
