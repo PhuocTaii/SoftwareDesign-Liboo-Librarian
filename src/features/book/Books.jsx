@@ -2,18 +2,14 @@ import React, {useState, useEffect} from 'react'
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { Button } from '@material-tailwind/react';
-import { BiBookOpen, BiChevronLeft, BiChevronRight, BiSolidBookAdd } from 'react-icons/bi';
-import { MdEdit } from 'react-icons/md';
-import { FaTrash } from 'react-icons/fa';
+import { BiBookOpen, BiSolidBookAdd } from 'react-icons/bi';
 import dummyImage from '../../assets/book.png';
 import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
 import CustomButton from '../../components/CustomButton';
-import ModalBook from './ModalBook';
-import DialogConfirm from '../../components/DialogConfirm';
 
-const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed', '', ''];
+const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed'];
 
 const generateISBN = () => {
   const characters = '0123456789';
@@ -72,11 +68,6 @@ const Books = () => {
     // setBookData(searchedBooks);
   }
 
-  const [openModal, setOpenModal] = useState(false)
-  const [openConfirm, setOpenConfirm] = useState(false)
-
-  const [modalType, setModalType] = useState(0) // 0: Add, 1: Edit
-
   return (
     <div className={`flex w-full h-full flex-col`}>    
       <div className='w-full flex justify-between gap-4'>
@@ -101,21 +92,8 @@ const Books = () => {
           </Select>
         </div>
       </div>
-      <div className='flex justify-between py-4'>
+      <div className='flex py-4'>
         <p className='font-semibold text-2xl'>Book list</p>
-        <CustomButton 
-            label= {
-              <div className="flex items-center gap-3">
-                <BiSolidBookAdd className="h-4 w-4" /> Add book
-              </div>
-            }
-            onClick={() => {
-              setOpenModal(!openModal)
-              setModalType(0)
-            }}
-            classes={"w-fit"}
-          >
-          </CustomButton>
       </div>  
       <div className='w-full min-h-max overflow-x-scroll'>
         <table className="w-full min-w-max table-auto text-left">
@@ -163,17 +141,6 @@ const Books = () => {
                 </td>
                 <td className="p-2">
                   <p>{record.borrowed}</p>
-                </td>              
-                <td className="p-2">
-                  <MdEdit 
-                    className="hover:cursor-pointer" 
-                    onClick={() => {
-                      setOpenModal(!openModal)
-                      setModalType(1)
-                    }}/>
-                </td>
-                <td className="p-2">
-                  <FaTrash className="hover:cursor-pointer" onClick={() => setOpenConfirm(!openConfirm)}/>
                 </td>
               </tr>
             ))}
@@ -181,9 +148,6 @@ const Books = () => {
         </table>
       </div>
       <Pagination/>
-
-      <ModalBook open={openModal} handleOpen={() => setOpenModal(!openModal)} type={modalType} />
-      <DialogConfirm open={openConfirm} handleOpen={() => setOpenConfirm(!openConfirm)}></DialogConfirm>
     </div>
   )
 }

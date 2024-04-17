@@ -3,17 +3,12 @@ import { Button } from '@material-tailwind/react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import {formatDate} from '../../helpers/dateFormat';
-import { FaTrash, FaUserPlus } from 'react-icons/fa';
 import { BiUserCircle } from 'react-icons/bi';
-import { MdEdit } from 'react-icons/md'
 import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
-import ModalAccount from './ModalAccount';
-import CustomButton from '../../components/CustomButton';
-import DialogConfirm from '../../components/DialogConfirm';
 import { Select, Option } from '@material-tailwind/react';
 
-const TABLE_HEAD = ['', 'Name', 'ID', 'Birthdate', 'Gender', 'Email', 'Address', 'Reg. date', 'Exp. date', 'Membership' ,'', ''];
+const TABLE_HEAD = ['', 'Name', 'ID', 'Birthdate', 'Gender', 'Email', 'Address', 'Reg. date', 'Exp. date', 'Membership'];
 
 const Accounts = () => {
 
@@ -36,7 +31,7 @@ const Accounts = () => {
     setData(dummyData);
   }, []);
 
-  const filterSearch = ['name', 'username']
+  const filterSearch = ['name', 'email']
   const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
   const [selectedSort, setSelectedSort] = useState('newest');
 
@@ -49,11 +44,6 @@ const Accounts = () => {
     // const searchedReaders = readerList.filter((reader) => reader[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase()));
     // setReaderData(searchedReaders);
   }
-
-  const [openModal, setOpenModal] = useState(false)
-  const [openConfirm, setOpenConfirm] = useState(false)
-
-  const [modalType, setModalType] = useState(0) // 0: Add, 1: Edit
 
   return (
     <div className={`flex w-full h-full flex-col`}>
@@ -77,21 +67,8 @@ const Accounts = () => {
           </Select>
         </div>
       </div>
-      <div className='flex justify-between py-4'>
+      <div className='flex py-4'>
           <p className='font-semibold text-2xl'>Reader list</p>
-          <CustomButton 
-            label= {
-              <div className="flex items-center gap-3">
-                <FaUserPlus strokeWidth={2} className="h-4 w-4" /> Add member
-              </div>
-            }
-            onClick={() => {
-              setOpenModal(!openModal)
-              setModalType(0)
-            }}
-            classes={"w-fit"}
-          >
-          </CustomButton>
       </div>
       <div className='w-full min-h-max overflow-x-scroll'>
         <table className="w-full min-w-max table-auto text-left">
@@ -139,17 +116,6 @@ const Accounts = () => {
                 </td> 
                 <td className="p-2">
                   <p>{record.membership}</p>
-                </td>              
-                <td className="p-2">
-                    <MdEdit 
-                      className="hover:cursor-pointer" 
-                      onClick={() => {
-                        setOpenModal(!openModal)
-                        setModalType(1)
-                      }}/>
-                </td>
-                <td className="p-2">
-                    <FaTrash className="hover:cursor-pointer" onClick={() => setOpenConfirm(!openConfirm)}/>
                 </td>
               </tr>
             ))}
@@ -157,9 +123,6 @@ const Accounts = () => {
         </table>
       </div>
       <Pagination/>
-
-      <ModalAccount open={openModal} handleOpen={() => setOpenModal(!openModal)} type={modalType} />
-      <DialogConfirm open={openConfirm} handleOpen={() => setOpenConfirm(!openConfirm)}></DialogConfirm>
     </div>
   )
 }

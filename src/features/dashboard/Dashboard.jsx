@@ -60,7 +60,7 @@ const Dashboard = () => {
   
   return (
     <div className="flex w-full h-full flex-col">
-      <div className='flex gap-5 mb-8'>
+      <div className='flex gap-5 mb-8 w-full'>
         <Card className="w-fit">
           <CardBody className='flex flex-col items-center'>
             <Typography variant="paragraph" color="blue-gray" className="mb-2">
@@ -95,8 +95,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className='mb-4'>
-        <div className='flex justify-between'>
+      <div className='mb-4 w-full'>
+        <div className='flex justify-between w-full'>
           <p className='font-semibold text-2xl'>Borrowing Trend</p>
           <div className="flex gap-2 items-center">
             <p>Year: </p>
@@ -113,7 +113,9 @@ const Dashboard = () => {
             />
           </div>
         </div>
-        <Bar options={options} data={data} />
+        <div className='w-[984px] mx-auto'>
+          <Bar className='w-full' options={options} data={data} />
+        </div>
       </div>
     </div>
   )
