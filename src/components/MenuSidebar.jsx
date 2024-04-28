@@ -7,6 +7,7 @@ import {
   GoPerson,
   GoArrowLeft,
   GoGraph,
+  GoHistory
 } from 'react-icons/go'
 import { BiLogOut, BiX } from 'react-icons/bi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,9 +17,14 @@ import { motion } from 'framer-motion'
 
 const items = [
   {
+    icon: <GoGraph color="white" size="1.5rem" />,
+    text: 'Dashboard',
+    path: '/',
+  },
+  {
     icon: <GoPerson color="white" size="1.5rem" />,
     text: 'Readers',
-    path: '/',
+    path: '/readers',
   },
   {
     icon: <GoBook color="white" size="1.5rem" />,
@@ -36,9 +42,9 @@ const items = [
     path: '/return',
   },
   {
-    icon: <GoGraph color="white" size="1.5rem" />,
-    text: 'Statistics',
-    path: '/statistics',
+    icon: <GoHistory color="white" size="1.5rem" />,
+    text: 'History',
+    path: '/history',
   },
 ]
 
@@ -116,13 +122,13 @@ const MenuSidebar = () => {
         </motion.div>
       )}
 
-      <motion.button
+      {toggle && <motion.button
         className="absolute top-2 left-4"
         onClick={(e) => handleToggleMenu(e)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ rotate: 360, transition: { duration: 0.5 } }}>
         <BiX size="2.5rem" color="white" />
-      </motion.button>
+      </motion.button>}
     </div>
   )
 }
