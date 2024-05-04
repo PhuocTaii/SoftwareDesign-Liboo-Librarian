@@ -13,7 +13,7 @@ import { BiLogOut, BiX } from 'react-icons/bi'
 import { useDispatch, useSelector } from 'react-redux'
 import { setToggle, setSelectedItem } from '../slices/menu'
 import { motion } from 'framer-motion'
-// import {logoutUser} from "../slices/requestApi"
+import {logout} from "../features/auth/authApi"
 
 const items = [
   {
@@ -62,7 +62,8 @@ const MenuItem = ({ icon, text, active, onClick }) => {
 const MenuSidebar = () => {
   // const location = useLocation();
   const { toggle, selectedItem } = useSelector((state) => state.menu)
-  // const user = useSelector((state) => state.auth.login?.currentUser);
+  const token = useSelector((state) => state.auth.currentUser.refresh_token);
+
 
   const dispatch = useDispatch()
 
@@ -71,10 +72,10 @@ const MenuSidebar = () => {
     dispatch(setToggle())
   }
 
-  const logout = () => {
+  const logoutHandle = () => {
     // console.log(user);
-    // logoutUser(dispatch, user?._id, user?.accessToken);
-    // dispatch(setToggle());
+    logout(dispatch, token);
+    dispatch(setToggle());
   }
 
   return (
@@ -113,7 +114,7 @@ const MenuSidebar = () => {
             </ul>
 
             <div className="w-full pl-8">
-              <button onClick={logout} className="flex gap-2 rounded-l-3xl">
+              <button onClick={logoutHandle} className="flex gap-2 rounded-l-3xl">
                 <BiLogOut color="white" size="1.5rem" />
                 <span className="text-white text-base">Logout</span>
               </button>
