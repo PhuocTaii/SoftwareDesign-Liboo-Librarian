@@ -1,5 +1,5 @@
 // Dashboard page
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Card, 
   CardBody, 
@@ -18,6 +18,9 @@ import {
 import { Bar } from 'react-chartjs-2';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useDispatch, useSelector } from 'react-redux';
+import { getBorrowingBooks, getPendingReservations, getTotalActiveBorrowers, getBookBorrowedCount } from './dashboardApi';
+
 
 ChartJS.register(
   CategoryScale,
@@ -29,17 +32,6 @@ ChartJS.register(
 );
 
 const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: [65, 59, 80, 81, 56, 55, 40, 30, 20, 10, 5, 1],
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-    },
-  ],
-};
 
 const options = {
   responsive: true,
@@ -57,6 +49,68 @@ const options = {
 
 const Dashboard = () => {
   const [selectedYear, setSelectedYear] = useState(new Date());
+
+  const [borrowingBooks, setBorrowingBooks] = useState([0]);
+  const [pendingReservations, setPendingReservations] = useState([0]);
+  const [totalActiveBorrowers, setTotalActiveBorrowers] = useState([0]);
+  const [data, setData] = useState({
+    labels,
+    datasets: [
+      {
+        label: 'Dataset 1',
+        data: [],
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      },
+    ],
+  });
+
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.currentUser);
+  const token = user?.refresh_token;
+
+  useEffect(() => {
+    getBorrowingBooks(token).then((data) => {
+      setBorrowingBooks(data.length);
+    })
+    getPendingReservations(token).then((data) => {
+      setPendingReservations(data.length);
+    })
+    getTotalActiveBorrowers(token).then((data) => {
+      setTotalActiveBorrowers(data);
+    })
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getBorrowingBooks(token).then((data) => {
+        setBorrowingBooks(data.length);
+      })
+      getPendingReservations(token).then((data) => {
+        setPendingReservations(data.length);
+      })
+      getTotalActiveBorrowers(token).then((data) => {
+        setTotalActiveBorrowers(data);
+      })  
+    }, 1000 * 60);
+  
+    return () => clearInterval(interval);
+  }, [])
+
+  useEffect(() => {
+    getBookBorrowedCount(selectedYear.getFullYear(), token).then((dataset) => {
+      setData({
+        ...data,
+        datasets: [
+          {
+            ...data.datasets[0],
+            data: dataset,
+          },
+        ],
+      })
+    })
+  }, [selectedYear])
+
+
   
   return (
     <div className="flex w-full h-full flex-col">
@@ -67,7 +121,7 @@ const Dashboard = () => {
               Total books being borrowed
             </Typography>
             <Typography variant="h4">
-              10
+              {borrowingBooks}
             </Typography>
           </CardBody>
         </Card>
@@ -78,7 +132,7 @@ const Dashboard = () => {
               Total pending reservations
             </Typography>
             <Typography variant="h4">
-              10
+              {pendingReservations}
             </Typography>
           </CardBody>
         </Card>
@@ -89,7 +143,7 @@ const Dashboard = () => {
               Total active borrowers
             </Typography>
             <Typography variant="h4">
-              10
+            {totalActiveBorrowers}
             </Typography>
           </CardBody>
         </Card>

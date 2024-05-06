@@ -8,6 +8,7 @@ import Borrow from './features/transaction/Borrow'
 import Return from './features/transaction/Return'
 import Dashboard from './features/dashboard/Dashboard'
 import History from './features/dashboard/History'
+import PrivateRoute from './routes/PrivateRoute';
 
 const App = () => {
   return (
@@ -16,13 +17,15 @@ const App = () => {
         <Route element={<AuthLayout />}>
           <Route path="login" element={<Login />} />
         </Route>
-        <Route element={<MainLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="readers" element={<Accounts />} />
-          <Route path="books" element={<Books />} />
-          <Route path="borrow" element={<Borrow />} />
-          <Route path="return" element={<Return />} />
-          <Route path="history" element={<History />} />
+        <Route element={<PrivateRoute />} >
+          <Route element={<MainLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="readers" element={<Accounts />} />
+            <Route path="books" element={<Books />} />
+            <Route path="borrow" element={<Borrow />} />
+            <Route path="return" element={<Return />} />
+            <Route path="history" element={<History />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
