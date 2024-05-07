@@ -1,14 +1,12 @@
-import axios from "axios";
+import axios from "../../config/axiosConfig";
 import {slice} from "./authSlice";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-const url = "http://localhost:8080/api/authentication/"
-
 export const login = async (user, dispatch, navigate) => {
     dispatch(slice.signInBegin());
     try{
-        const res = await axios.post(`${url + 'librarian/login'}`, user, {
+        const res = await axios.post('/authentication/librarian/login', user, {
             'Content-Type': 'application/json'
         })
         dispatch(slice.signInSuccess(res.data))
@@ -23,7 +21,7 @@ export const login = async (user, dispatch, navigate) => {
 export const logout = async (dispatch, token) => {
     dispatch(slice.logoutBegin());
     try{
-        const res = await axios.post(`${url + 'logout'}`, {}, {
+        const res = await axios.post('/authentication/logout', {}, {
             headers: {
                 'Authorization': `Bearer ${token}`}
         })

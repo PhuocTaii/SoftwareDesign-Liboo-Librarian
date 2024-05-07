@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { BiSearch, BiChevronDown } from 'react-icons/bi'
 import {
   Input,
@@ -8,11 +8,33 @@ import {
   MenuItem,
   Button,
 } from '@material-tailwind/react'
+import {debounce} from 'lodash'
 
-const SearchBar = ({filters}) => {
+const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, onSearch}) => {
 
-  const [selectedFilter, setSelectedFilter] = useState(filters[0])
   const [openMenu, setOpenMenu] = useState(false)
+
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const debounceSearch = useCallback(
+    debounce((searchTerm, selectedFilter, selectedSort) => {
+      onSearch(searchTerm, selectedFilter, selectedSort)
+    }, 500), // Debounce the searchBook function
+    []
+  );
+
+  const handleSearch = () => {
+    // const searchTerm = e.target.value;
+
+    // if (searchTerm === '') {
+    //   return;
+    // }
+    debounceSearch(searchTerm, selectedFilter, selectedSort);
+  }
+
+  useEffect(() => {
+    handleSearch()
+  }, [searchTerm, selectedFilter, selectedSort])
 
   return (
     <div className="flex w-full sm:w-[23rem]">
@@ -23,7 +45,7 @@ const SearchBar = ({filters}) => {
             variant="text"
             color="blue-gray"
             className="flex justify-between w-fit h-10 items-center gap-2 rounded-r-none border border-r-0 border-blue-gray-200 bg-blue-gray-500/10 px-3">
-            {selectedFilter}
+            {filters[selectedFilter]}
             <BiChevronDown
               size="1.3rem"
               className={`transition-transform ${openMenu ? 'rotate-180' : ''}`}
@@ -37,7 +59,7 @@ const SearchBar = ({filters}) => {
                 key={index}
                 value={item}
                 className="flex items-center gap-2"
-                onClick={() => setSelectedFilter(item)}>
+                onClick={() => setSelectedFilter(index)}>
                 <p className="capitalize">{item}</p>
               </MenuItem>
             )
@@ -52,7 +74,9 @@ const SearchBar = ({filters}) => {
           labelProps={{
             className: 'before:content-none after:content-none',
           }}
-          // onChange={handleSearchBook}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+          }}
           icon={<BiSearch size="1.2rem" />}
         />
       </div>
