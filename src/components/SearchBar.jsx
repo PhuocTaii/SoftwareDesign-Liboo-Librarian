@@ -7,7 +7,6 @@ import {
   MenuList,
   MenuItem,
   Button,
-  select,
 } from '@material-tailwind/react'
 import {debounce} from 'lodash'
 

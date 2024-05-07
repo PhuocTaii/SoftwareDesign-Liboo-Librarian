@@ -3,69 +3,68 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { Button } from '@material-tailwind/react';
 import { BiBookOpen, BiSolidBookAdd } from 'react-icons/bi';
-import dummyImage from '../../assets/book.png';
 import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
 import CustomButton from '../../components/CustomButton';
+import { getBooks } from './bookApi';
 
 const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed'];
-
-const generateISBN = () => {
-  const characters = '0123456789';
-  let result = '';
-  for (let i = 0; i < 10; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return `${result}`;
-};
-
-const generateGenre = () => {
-  const genres = ['Fiction', 'Non-fiction', 'Fantasy', 'Science Fiction', 'Mystery', 'Thriller', 'Romance', 'Horror', 'Adventure', 'Biography'];
-  const randomIndex = Math.floor(Math.random() * genres.length);
-  return [genres[randomIndex]];
-};
 
 // Book page
 const Books = () => {
   const dispatch = useDispatch();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({
+    books: [],
+    pageNumber: 0,
+    totalPages: 0,
+    totalItems: 0
+  });
+
   useEffect(() => {
-    // Dummy data creation
-    const dummyData = Array.from({ length: 10 }, (_, index) => ({
-      _id: index + 1,
-      name: `Book ${index + 1}`,
-      image: dummyImage,
-      ISBN: generateISBN(),
-      author: `Author ${index + 1}`,
-      publisher: `Publisher ${index + 1}`,
-      publishYear: 2000 + Math.floor(Math.random() * 20),
-      genre: generateGenre(),
-      price: Math.floor(Math.random() * 50) + 10, // Random price between 10 and 59
-      quantity: Math.floor(Math.random() * 100) + 1, // Random quantity between 1 and 100
-      borrowed: Math.floor(Math.random() * 50), // Random borrowed between 0 and 49
-    }));
-    setData(dummyData);
-  }, []);
+    getBooks(data.pageNumber).then((res) => {
+      if(res !== null) {
+        setData(res);
+      }
+      else {
+        setData({
+          books: [],
+          pageNumber: 0,
+          totalPages: 0,
+          totalItems: 0
+        })
+      }
+    })
+  }, [data.pageNumber])
+  const prevPage = () => {
+    if(data.pageNumber > 0) {
+      setData({...data, pageNumber: data.pageNumber - 1})
+    }
+  }
+  const nextPage = () => {
+    if(data.pageNumber < data.totalPages - 1) {
+      setData({...data, pageNumber: data.pageNumber + 1})
+    }
+  }
 
-  const filterSearch = ['name', 'ISBN', 'author', 'publisher', 'genre']
-  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
-  const [selectedSort, setSelectedSort] = useState('none');
+  const filterSearch = ['name', 'isbn']
+  const [selectedFilter, setSelectedFilter] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('');
 
-  const handleSearch = (e) => {
-    // const searchTerm = e.target.value;
-    // if (searchTerm === '') {
-    //   setBookData(bookList);
-    //   return;
-    // }
-    // const searchedBooks = bookList.filter((book) => {
-    //   if (selectedFilter === 'genre') {
-    //     return book[selectedFilter].some((genre) => genre.toLowerCase().includes(searchTerm.toLowerCase()));
-    //   }
-    //   else
-    //     return book[selectedFilter].toLowerCase().includes(searchTerm.toLowerCase())
-    // });
-    // setBookData(searchedBooks);
+  const handleSearch = (searchTerm, filterBy, selectedSort) => {
+    getBooks(data.pageNumber, filterSearch[filterBy], searchTerm, selectedSort).then((res) => {
+      if(res !== null) {
+        setData(res);
+      }
+      else {
+        setData({
+          books: [],
+          pageNumber: 0,
+          totalPages: 0,
+          totalItems: 0
+        })
+      }
+    })
   }
 
   return (
@@ -73,22 +72,24 @@ const Books = () => {
       <div className='w-full flex justify-between gap-4'>
         <SearchBar 
           filters={filterSearch} 
-          onClick={(e) => setSelectedFilter(e.target.value)} 
-          onChange={handleSearch}
+          onSearch={(searchTerm, filterBy, selectedSort) => handleSearch(searchTerm, filterBy, selectedSort)}
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
+          selectedSort={selectedSort}
         />
         <div className="w-72">
           <Select 
             label="Sort by"
             value={selectedSort}
-            onChange={(e) => setSelectedSort(e)}
+            onChange={(e) => {
+              setSelectedSort(e)
+            }}
           >
-            <Option value="none">None</Option>
-            <Option value="quant-low-high">Quantity: Low - High</Option>
-            <Option value="quant-high-low">Quantity: High - Low</Option>
-            <Option value="borrowed-low-high">Borrowed: Low - High</Option>
-            <Option value="borrowed-high-low">Borrowed: High - Low</Option>
-            <Option value="name-a-z">Name: A-Z</Option>
-            <Option value="name-z-a">Name: Z-A</Option>
+            <Option value="">None</Option>
+            <Option value="borrowed-asc">Borrowed: Low - High</Option>
+            <Option value="borrowed-desc">Borrowed: High - Low</Option>
+            <Option value="name-asc">Name: A-Z</Option>
+            <Option value="name-desc">Name: Z-A</Option>
           </Select>
         </div>
       </div>
@@ -107,31 +108,31 @@ const Books = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.map((record) => (
-              <tr key={record._id} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
+            {data.books.map((record) => (
+              <tr key={record.id} className="even:bg-blue-gray-50/50">
                 <td className="p-2 w-12 h-12">
-                  {!record.image ?
-                  <BiBookOpen className='w-full h-full' /> :
-                  <img src={record.image} alt="logo" className="w-full h-full object-contain" />
+                  {record.image?.secureUrl ?
+                  <img src={record.image.secureUrl} alt="logo" className="w-full h-full object-contain" />:
+                  <BiBookOpen className='w-full h-full' />
                   }
                 </td>
                 <td className="p-2">
-                  <p>{record.ISBN}</p>
+                  <p>{record.isbn}</p>
                 </td>
                 <td className="p-2">
                   <p>{record.name}</p>
                 </td>
                 <td className="p-2">
-                  <p>{record.author}</p>
+                  <p>{record.author.name}</p>
                 </td>
                 <td className="p-2">
-                  <p>{record.publisher}</p>
+                  <p>{record.publisher.name}</p>
                 </td>
                 <td className="p-2">
                   <p>{record.publishYear}</p>
                 </td>
                 <td className="p-2">
-                  <p>{record.genre.join(', ')}</p>
+                  <p>{record.genres?.map(obj => obj.name).join(', ')}</p>
                 </td>
                 <td className="p-2">
                   <p>{record.price}</p>
@@ -147,7 +148,19 @@ const Books = () => {
           </tbody>
         </table>
       </div>
-      <Pagination/>
+      <Pagination 
+        className={"mx-auto w-fit"} 
+        numPages={data.totalPages} 
+        currentPage={data.pageNumber}
+        onPageClick={(page) => 
+          setData({
+            ...data,
+            pageNumber: page
+          })
+        }
+        onPrevClick={prevPage}
+        onNextClick={nextPage}
+      />
     </div>
   )
 }
