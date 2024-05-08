@@ -10,7 +10,7 @@ import {
 } from '@material-tailwind/react'
 import {debounce} from 'lodash'
 
-const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, onSearch}) => {
+const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, onSearch, placeholder="Search..."}) => {
 
   const [openMenu, setOpenMenu] = useState(false)
 
@@ -38,6 +38,7 @@ const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, on
 
   return (
     <div className="flex w-full sm:w-[23rem]">
+      {filters && 
       <Menu placement="bottom-start" open={openMenu} handler={setOpenMenu}>
         <MenuHandler>
           <Button
@@ -66,11 +67,12 @@ const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, on
           })}
         </MenuList>
       </Menu>
+      }
       <div className="w-full relative">
         <Input
           type="text"
-          placeholder="Search..."
-          className="w-full rounded-l-none !border-t-blue-gray-200 focus:!border-gray-300 focus:border-2"
+          placeholder={placeholder}
+          className={`w-full ${filters && 'rounded-l-none'} !border-t-blue-gray-200 focus:!border-gray-300 focus:border-2`}
           labelProps={{
             className: 'before:content-none after:content-none',
           }}

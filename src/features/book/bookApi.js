@@ -13,3 +13,13 @@ export const getBooks = async (page, searchBy="", query="", sortBy="") => {
     return null
   }
 }
+
+export const getBookByName = async (name) => {
+  try{
+    const res = await instance.get(`/books/name?name=${name}`);
+    return res.data;
+  } catch (err){
+    console.log(err.response);
+    return null
+  }
+}
