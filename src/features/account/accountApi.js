@@ -13,3 +13,14 @@ export const getReaders = async (page, searchBy="", query="", sortBy="") => {
     return null
   }
 }
+
+export const getReaderByEmail = async (email) => {
+  try{
+    const res = await instance.get(`/reader?email=${email}`);
+    return res.data;
+  } catch (err){
+    console.log(err.response);
+    toast.error(err.response.data)
+    return null
+  }
+}

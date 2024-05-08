@@ -1,35 +1,78 @@
 import React, {useEffect, useState} from "react";
 import { Input, Checkbox } from "@material-tailwind/react";
 import CustomButton from "../../components/CustomButton";
-import { useSelector, useDispatch } from 'react-redux';
 import { formatDate } from '../../helpers/dateFormat';
+import { getReturnBookInfo, getTransactionBook, returnBook } from "./transactionApi";
+import { currencyFormat } from "../../helpers/currency";
 
 const NOTE = {
+  UNCHECK: '',
   ON_TIME: 'On time',
   OVERDUE: 'Overdue',
 }
 // Return page
 const Return = () => {
-
-  const dispatch = useDispatch();
-
   const today = new Date()
-  const [slip, setSlip] = useState({username:'', isbn: '', returningDate: formatDate(today), note: NOTE.ON_TIME, lost: false, fine: 0})
+  const [transaction, setTransaction] = useState({
+    email:'', 
+    isbn: '', 
+    returningDate: formatDate(today), 
+    note: NOTE.UNCHECK, 
+    lost: false,
+    fine: ''
+  })
+
+  const [transactionBookData, setTransactionBookData] = useState(null)
 
   const handleChangeInfo = (e) => {
     e.preventDefault();
     const {name, value} = e.target;
-    setSlip({...slip, [name]: value});
+    setTransaction({
+      ...transaction,
+      note: NOTE.UNCHECK,
+      fine: '',
+      [name]: value
+    });
   }
 
   const handleReturn = (e) => {
     e.preventDefault();
-    // deleteBookFromSlip(slip, slip.username, slip.isbn, user?.accessToken, dispatch)
-    setSlip({username:'', isbn: '', returningDate: formatDate(today), note: NOTE.ON_TIME, lost: false, fine: 0})
-  }
 
-  const [diffDays, setDiffDays] = useState(0)
-  const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+    if(transaction.note === NOTE.UNCHECK) {
+      getTransactionBook(transaction.email, transaction.isbn).then((transactionBook) => {
+        console.log(transactionBook)
+        if(transactionBook != null) {
+          setTransactionBookData(transactionBook)
+          getReturnBookInfo(transactionBook.id, transaction.lost).then((data) => {
+            if(data != null) {
+              setTransaction({
+                ...transaction,
+                note: (data.diff <= 0) ? NOTE.ON_TIME : NOTE.OVERDUE,
+                fine: data.fine
+              })
+            }
+          })
+        }
+      })
+    }
+    else {
+      returnBook(transactionBookData.id, transaction.lost).then((data) => {
+        if(data != null) {
+          setTransaction({
+            email:'', 
+            isbn: '', 
+            returningDate: formatDate(today), 
+            note: NOTE.UNCHECK, 
+            lost: false,
+            fine: ''
+          })
+          setTransactionBookData(null)
+          document.getElementById('return-lost-checkbox').checked = false
+        }
+      })
+    }
+  }
+  
   return (
     <div className="flex flex-col w-full h-full gap-8">
       <form className="w-full space-y-5" onSubmit={(e) => handleReturn(e)}>
@@ -39,7 +82,7 @@ const Return = () => {
             variant="standard"
             label="Email"
             name="email"
-            value={slip.username}
+            value={transaction.email}
             onChange={handleChangeInfo}
             required
           />  
@@ -47,7 +90,7 @@ const Return = () => {
             variant="standard"
             label="ISBN-13"
             name="isbn"
-            value={slip.isbn}
+            value={transaction.isbn}
             onChange={handleChangeInfo}
             onInput={(e) =>
               (e.target.value = e.target.value
@@ -62,7 +105,7 @@ const Return = () => {
             variant="standard"
             label="Returning date"
             name="returningDate"
-            value={slip.returningDate}
+            value={transaction.returningDate}
             readOnly
           />
           <div className='flex gap-2'>
@@ -70,25 +113,34 @@ const Return = () => {
               variant="standard"
               label="Note"
               name="note"
-              value={slip.note}
+              value={transaction.note}
               readOnly
               containerProps={{className: 'w-1/2'}}
             />
-            <Checkbox label='Lost' onChange={(e) => setSlip({...slip, lost: e.target.checked})} />
+            <Checkbox 
+              label='Lost'
+              name="lost"
+              id="return-lost-checkbox"
+              onChange={(e) => setTransaction({
+                ...transaction, 
+                lost: e.target.checked,
+                note: NOTE.UNCHECK,
+              })}
+            />
           </div>
           <Input
             variant="standard"
             label="Fine"
             name="fine"
-            value={slip.fine}
-            type="number"
-            min={0}
+            value={currencyFormat(transaction.fine)}
             readOnly
-            onChange={handleChangeInfo}
           />
         </div>
         <div className="flex justify-center pt-3">
-          <CustomButton label="Done" type="submit" />
+          <CustomButton 
+            label={transaction.note === NOTE.UNCHECK ? "Check" : "Return"} 
+            type="submit" 
+          />
         </div>
       </form>
     </div>
