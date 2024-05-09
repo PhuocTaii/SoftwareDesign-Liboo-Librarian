@@ -1,5 +1,5 @@
 // Statistic page
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { 
   Select, 
   Option,
@@ -11,123 +11,185 @@ import {
   Input
 } from '@material-tailwind/react';
 import Pagination from '../../components/Pagination';
-import SearchBar from '../../components/SearchBar';
 import {formatDate} from '../../helpers/dateFormat';
 import { BiChevronDown } from 'react-icons/bi'
+import { getBorrows, getRenews, getReservations } from './dashboardApi';
 
 const StatusChip = ({status}) => {
-  switch (status) {
-    case 'Pending':
-      return <div className="px-2 py-1 bg-gray-300 rounded-full text-xs w-20 flex justify-center">Pending</div>
-    case 'Rejected':
-      return <div className="px-2 py-1 bg-deep-orange-400 rounded-full text-xs w-20 flex justify-center">Rejected</div>
-    case 'Accepted':
-      return <div className="px-2 py-1 bg-amber-400 rounded-full text-xs w-20 flex justify-center">Accepted</div>
-    default:
-      return <div className="px-2 py-1 bg-green-200 rounded-full text-xs w-20 flex justify-center">Done</div>
+  if(status) {
+    return <div className="px-2 py-1 bg-green-200 rounded-full text-xs w-20 text-center text-nowrap">PICKED-UP</div>
   }
+  else
+    return <div className="px-2 py-1 bg-gray-300 rounded-full text-xs w-20 text-center text-nowrap">NOT YET</div>
 }
 
-const TABLE_BORROW_HEAD = ['Name', 'ISBN', 'Borrow date', 'Due date', 'Return date', 'Fine', 'Renewal count'];
-const TABLE_RENEWAL_HEAD = ['Name', 'ISBN', 'Renew date'];
-const TABLE_RESERVATION_HEAD = ['Name', 'ISBN', 'Reserve date', 'Pickup date', 'Status'];
+const InputDate = ({onChange, value}) => {
+  return (
+    <div className='w-48'>
+      <Input
+        labelProps={{
+          className: "before:content-none after:content-none",
+        }}
+        containerProps={{
+          className: "min-w-fit",
+        }}
+        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+        type="date"
+        onChange={onChange}
+        value={value}
+      />
+    </div>
+  )
+}
+
+const MenuFilter = ({filters, selectedFilter, setSelectedFilter, openMenu, setOpenMenu}) => {
+  return(
+    <Menu placement="bottom-start" open={openMenu} handler={setOpenMenu}>
+      <MenuHandler>
+        <Button
+          ripple={false}
+          variant="text"
+          className="flex justify-between w-48 h-8 items-center gap-2 rounded-lg border border-blue-gray-200 px-2 normal-case font-normal text-sm">
+          {filters[selectedFilter]}
+          <BiChevronDown
+            size="1.3rem"
+            className={`transition-transform ${openMenu ? 'rotate-180' : ''}`}
+          />
+        </Button>
+      </MenuHandler>
+      <MenuList className="max-h-[20rem] max-w-[18rem]">
+        {filters.map((item, index) => {
+          return (
+            <MenuItem
+              key={index}
+              value={item}
+              className="flex items-center gap-2"
+              onClick={() => setSelectedFilter(index)}>
+              <p className="">{item}</p>
+            </MenuItem>
+          )
+        })}
+      </MenuList>
+    </Menu>
+  )
+}
+
+const TABLE_BORROW_HEAD = ['ISBN', 'Book name', 'Borrow date', 'Due date', 'Return date', 'Fine', 'Renewal count'];
+const TABLE_RENEWAL_HEAD = ['ISBN', 'Book name', 'Renew date'];
+const TABLE_RESERVATION_HEAD = ['ISBN', 'Book name', 'Reserve date', 'Pickup date', 'Status'];
 
 const History = () => {
   // BORROW
-  const filterSearch = ['name', 'ISBN']
-  const [selectedFilter, setSelectedFilter] = useState(filterSearch[0]);
-  const handleSearch = (e) => {
+  // const [selectedFilterBororw, setSelectedFilterBorrow] = useState(0);
+  const handleSearchBorrow = (e) => {
     
   }
-  const dateTypes = ['Borrow date', 'Due date', 'Return date']
-  const [selectedDateType, setSelectedDateType] = useState(dateTypes[0])
+  const dateTypesBorrow = ['None', 'Borrow date', 'Due date', 'Return date']
+  const [selectedDateTypeBorrow, setSelectedDateTypeBorrow] = useState(0)
   const [openMenu, setOpenMenu] = useState(false)
-  const [dataBorrow, setDataBorrow] = useState([
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      borrowDate: Date.now(),
-      dueDate: Date.now(),
-      returnDate: Date.now(),
-      fine: 0,
-      renewalCount: 0,
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      borrowDate: Date.now(),
-      dueDate: Date.now(),
-      returnDate: Date.now(),
-      fine: 0,
-      renewalCount: 0,
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      borrowDate: Date.now(),
-      dueDate: Date.now(),
-      returnDate: Date.now(),
-      fine: 0,
-      renewalCount: 0,
-    },
-  ]);
+  const [dataBorrow, setDataBorrow] = useState({
+    transactions: [],
+    totalPages: 1,
+    pageNumber: 0
+  })
+  const [selectedDatesBorrow, setSelectedDatesBorrow] = useState({
+    from: "",
+    to: ""
+  })
+
 
   // RENEW
-  const filterSearchRenew = ['name', 'ISBN']
-  const [selectedFilterRenew, setSelectedFilterRenew] = useState(filterSearchRenew[0]);
+  // const [selectedFilterRenew, setSelectedFilterRenew] = useState(0);
   const handleSearchRenew = (e) => {
     
   }
-  const [dataRenew, setDataRenew] = useState([
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      renewDate: Date.now(),
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      renewDate: Date.now(),
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      renewDate: Date.now(),
-    },
-  ]);
+  const [dataRenew, setDataRenew] = useState({
+    renewals: [],
+    totalPages: 1,
+    pageNumber: 0
+  })
+  const [selectedDateTypeRenew, setSelectedDateTypeRenew] = useState({
+    from: "",
+    to: ""
+  })
 
   // RESERVE
-  const filterSearchReserve = ['name', 'ISBN']
-  const [selectedFilterReserve, setSelectedFilterReserve] = useState(filterSearchReserve[0]);
+  // const [selectedFilterReserve, setSelectedFilterReserve] = useState(0);
   const handleSearchReserve = (e) => {
     
   }
-  const dateTypesReserve = ['Reserve date', 'Pickup date']
-  const [selectedDateTypeReserve, setSelectedDateTypeReserve] = useState(dateTypesReserve[0])
+  const dateTypesReserve = ['None', 'Reserve date', 'Pickup date']
+  const [selectedDateTypeReserve, setSelectedDateTypeReserve] = useState(0)
   const [openMenuReserve, setOpenMenuReserve] = useState(false)
-  const [dataReserve, setDataReserve] = useState([
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      reserveDate: Date.now(),
-      pickupDate: Date.now(),
-      status: 'Pending',
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      reserveDate: Date.now(),
-      pickupDate: Date.now(),
-      status: 'Rejected',
-    },
-    {
-      name: 'User Name 1',
-      ISBN: 'ISBN-1',
-      reserveDate: Date.now(),
-      pickupDate: Date.now(),
-      status: 'Accepted',
-    },
-  ]);
+  const [dataReserve, setDataReserve] = useState({
+    reservations: [],
+    totalPages: 1,
+    pageNumber: 0
+  })
+  const [selectedDatesReserve, setSelectedDatesReserve] = useState({
+    from: "",
+    to: ""
+  })
+
+  // ------------------- HANDLE PAGING -------------------
+  // Paging borrows
+  useEffect(() => {
+    getBorrows(dataBorrow.pageNumber, selectedDateTypeBorrow, selectedDatesBorrow.from, selectedDatesBorrow.to).then((data) => {
+      if(data != null) {
+        setDataBorrow(data)
+      }
+    })
+  }, [dataBorrow.pageNumber, selectedDateTypeBorrow, selectedDatesBorrow])
+  const prevPageBorrow = () => {
+    if(dataBorrow.pageNumber > 0) {
+      setDataBorrow({...dataBorrow, pageNumber: dataBorrow.pageNumber - 1})
+    }
+  }
+  const nextPageBorrow = () => {
+    if(dataBorrow.pageNumber < dataBorrow.totalPages - 1) {
+      setDataBorrow({...dataBorrow, pageNumber: dataBorrow.pageNumber + 1})
+    }
+  }
+
+  // Paging renewals
+  useEffect(() => {
+    getRenews(dataRenew.pageNumber, "renew-date", selectedDateTypeRenew.from, selectedDateTypeRenew.to).then((data) => {
+      if(data != null) {
+        setDataRenew(data)
+      }
+    })
+  }, [dataRenew.pageNumber, "renew-date", selectedDateTypeRenew])
+  const prevPageRenew = () => {
+    if(dataRenew.pageNumber > 0) {
+      setDataRenew({...dataRenew, pageNumber: dataRenew.pageNumber - 1})
+    }
+  }
+  const nextPageRenew = () => {
+    if(dataRenew.pageNumber < dataRenew.totalPages - 1) {
+      setDataRenew({...dataRenew, pageNumber: dataRenew.pageNumber + 1})
+    }
+  }
+
+  // Paging reservations
+  useEffect(() => {
+    getReservations(dataReserve.pageNumber, selectedDateTypeReserve, selectedDatesReserve.from, selectedDatesReserve.to).then((data) => {
+      if(data != null) {
+        setDataReserve(data)
+      }
+    })
+  }, [dataReserve.pageNumber, selectedDateTypeReserve, selectedDatesReserve])
+  const prevPageReserve = () => {
+    if(dataReserve.pageNumber > 0) {
+      setDataReserve({...dataReserve, pageNumber: dataReserve.pageNumber - 1})
+    }
+  }
+  const nextPageReserve = () => {
+    if(dataReserve.pageNumber < dataReserve.totalPages - 1) {
+      setDataReserve({...dataReserve, pageNumber: dataReserve.pageNumber + 1})
+    }
+  }
+
+  const [selectedId, setSelectedId] = useState(0)
 
   return (
     <div className={`flex w-full h-full flex-col`}>
@@ -137,70 +199,38 @@ const History = () => {
           <p className='font-semibold text-2xl pb-4'>BORROWS</p>
           {/* Search bar */}
           <div className='w-full flex flex-col justify-between gap-4'>
-            <SearchBar 
-              filters={filterSearch}
-              onClick={(e) => setSelectedFilter(e.target.value)} 
-              onChange={handleSearch}
-            />
             <div className='flex gap-2 items-center'>
               <p>Filter</p>
-              <Menu placement="bottom-start" open={openMenu} handler={setOpenMenu}>
-                <MenuHandler>
-                  <Button
-                    ripple={false}
-                    variant="text"
-                    className="flex justify-between w-48 h-8 items-center gap-2 rounded-lg border border-blue-gray-200 px-2 normal-case font-normal text-sm">
-                    {selectedDateType}
-                    <BiChevronDown
-                      size="1.3rem"
-                      className={`transition-transform ${openMenu ? 'rotate-180' : ''}`}
-                    />
-                  </Button>
-                </MenuHandler>
-                <MenuList className="max-h-[20rem] max-w-[18rem]">
-                  {dateTypes.map((item, index) => {
-                    return (
-                      <MenuItem
-                        key={index}
-                        value={item}
-                        className="flex items-center gap-2"
-                        onClick={() => setSelectedDateType(item)}>
-                        <p className="">{item}</p>
-                      </MenuItem>
-                    )
-                  })}
-                </MenuList>
-              </Menu>
-              <p>from</p>
-              <div className='w-48'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-from'
-                />
-              </div>
-              <p>to</p>
-              <div className='w-48'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-to' 
-                />
-              </div>
+              <MenuFilter
+                filters={dateTypesBorrow}
+                selectedFilter={selectedDateTypeBorrow}
+                setSelectedFilter={setSelectedDateTypeBorrow}
+                openMenu={openMenu}
+                setOpenMenu={setOpenMenu}
+              />
+              {
+                selectedDateTypeBorrow !== 0 &&
+                <>
+                  <p>from</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesBorrow({
+                        ...selectedDatesBorrow,
+                        from: e.target.value})
+                    }
+                    value={selectedDatesBorrow.from}
+                  />
+                  <p>to</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesBorrow({
+                        ...selectedDatesBorrow,
+                        to: e.target.value})
+                    }
+                    value={selectedDatesBorrow.to}
+                  />
+                </>
+              }
             </div>
           </div>
         </div>
@@ -216,35 +246,55 @@ const History = () => {
               </tr>
             </thead>
             <tbody>
-              {dataBorrow?.map((record) => (
-                <tr key={record._id} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
-                  <td className="p-2">
-                    <p>{record.name}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{record.ISBN}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{formatDate(record.borrowDate)}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{formatDate(record.dueDate)}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{formatDate(record.returnDate)}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{record.fine}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{record.renewalCount}</p>
-                  </td>
-                </tr>
+              {dataBorrow.transactions.map((record) => (
+                <>
+                  {record?.transactionBooks.map((detail, index) => (
+                    <tr key={detail.id} className="" onClick={() => setSelectedId(detail.id)}>
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{detail.book.isbn}</p>
+                      </td>
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{detail.book.name}</p>
+                      </td>
+                      {index === 0 && 
+                        <td className="p-2 border border-blue-gray-100" rowSpan={record.transactionBooks.length}>
+                          <p>{formatDate(record.borrowedDate)}</p>
+                        </td>
+                      }
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{formatDate(detail.dueDate)}</p>
+                      </td>
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{formatDate(detail.returnDate)}</p>
+                      </td>
+                      {index === 0 && 
+                        <td className="p-2 border border-blue-gray-100" rowSpan={record.transactionBooks.length}>
+                          <p>{record.fine}</p>
+                        </td>
+                      }
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{detail.renewalCount}</p>
+                      </td>
+                    </tr>
+                  ))}
+                </>
               ))}
             </tbody>
           </table>
         </div>
-        <Pagination/>
+        <Pagination 
+          className={"mx-auto w-fit"} 
+          numPages={dataBorrow.totalPages} 
+          currentPage={dataBorrow.pageNumber}
+          onPageClick={(page) => 
+            setDataBorrow({
+              ...dataBorrow,
+              pageNumber: page
+            })
+          }
+          onPrevClick={prevPageBorrow}
+          onNextClick={nextPageBorrow}
+          />
       </div>
 
       {/* -------------------RENEW------------------- */}
@@ -253,14 +303,9 @@ const History = () => {
           <p className='font-semibold text-2xl pb-4'>RENEWALS</p>
           {/* Search bar */}
           <div className='w-full flex flex-col justify-between gap-4'>
-            <SearchBar 
-              filters={filterSearchRenew}
-              onClick={(e) => setSelectedFilterRenew(e.target.value)} 
-              onChange={handleSearchRenew}
-            />
             <div className='flex gap-2 items-center'>
               <p>Filter <span className='font-semibold'>Renew date</span> from</p>
-              <div className='w-48'>
+              <div className='w-fit'>
                 <Input
                   labelProps={{
                     className: "before:content-none after:content-none",
@@ -275,7 +320,7 @@ const History = () => {
                 />
               </div>
               <p>to</p>
-              <div className='w-48'>
+              <div className='w-fit'>
                 <Input
                   labelProps={{
                     className: "before:content-none after:content-none",
@@ -304,23 +349,35 @@ const History = () => {
               </tr>
             </thead>
             <tbody>
-              {dataRenew?.map((record) => (
-                <tr key={record._id} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
+              {dataRenew.renewals.map((record) => (
+                <tr key={record.id} className="even:bg-blue-gray-50/50">
                   <td className="p-2">
-                    <p>{record.name}</p>
+                    <p>{record.transactionBook?.book?.isbn}</p>
                   </td>
                   <td className="p-2">
-                    <p>{record.ISBN}</p>
+                    <p>{record.transactionBook?.book?.name}</p>
                   </td>
                   <td className="p-2">
-                    <p>{formatDate(record.renewDate)}</p>
+                    <p>{formatDate(record.requestDate)}</p>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <Pagination/>
+        <Pagination 
+          className={"mx-auto w-fit"} 
+          numPages={dataRenew.totalPages} 
+          currentPage={dataBorrow.pageNumber}
+          onPageClick={(page) => 
+            setDataRenew({
+              ...dataRenew,
+              pageNumber: page
+            })
+          }
+          onPrevClick={prevPageRenew}
+          onNextClick={nextPageRenew}
+          />
       </div>
 
       {/* -------------------RESERVATIONS------------------- */}
@@ -329,70 +386,38 @@ const History = () => {
           <p className='font-semibold text-2xl pb-4'>RESERVATIONS</p>
           {/* Search bar */}
           <div className='w-full flex flex-col justify-between gap-4'>
-            <SearchBar 
-              filters={filterSearchReserve}
-              onClick={(e) => setSelectedFilterReserve(e.target.value)} 
-              onChange={handleSearchReserve}
-            />
             <div className='flex gap-2 items-center'>
               <p>Filter</p>
-              <Menu placement="bottom-start" open={openMenuReserve} handler={setOpenMenuReserve}>
-                <MenuHandler>
-                  <Button
-                    ripple={false}
-                    variant="text"
-                    className="flex justify-between w-48 h-8 items-center gap-2 rounded-lg border border-blue-gray-200 px-2 normal-case font-normal text-sm">
-                    {selectedDateTypeReserve}
-                    <BiChevronDown
-                      size="1.3rem"
-                      className={`transition-transform ${openMenuReserve ? 'rotate-180' : ''}`}
-                    />
-                  </Button>
-                </MenuHandler>
-                <MenuList className="max-h-[20rem] max-w-[18rem]">
-                  {dateTypesReserve.map((item, index) => {
-                    return (
-                      <MenuItem
-                        key={index}
-                        value={item}
-                        className="flex items-center gap-2"
-                        onClick={() => setSelectedDateTypeReserve(item)}>
-                        <p className="">{item}</p>
-                      </MenuItem>
-                    )
-                  })}
-                </MenuList>
-              </Menu>
-              <p>from</p>
-              <div className='w-48'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-from'
-                />
-              </div>
-              <p>to</p>
-              <div className='w-48'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-to' 
-                />
-              </div>
+              <MenuFilter
+                filters={dateTypesReserve}
+                selectedFilter={selectedDateTypeReserve}
+                setSelectedFilter={setSelectedDateTypeReserve}
+                openMenu={openMenuReserve}
+                setOpenMenu={setOpenMenuReserve}
+              />
+              {
+                selectedDateTypeReserve !== 0 &&
+                <>
+                  <p>from</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesReserve({
+                        ...selectedDatesReserve,
+                        from: e.target.value})
+                    }
+                    value={selectedDatesReserve.from}
+                  />
+                  <p>to</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesReserve({
+                        ...selectedDatesReserve,
+                        to: e.target.value})
+                    }
+                    value={selectedDatesReserve.to}
+                  />
+                </>
+              }
             </div>
           </div>
         </div>
@@ -408,29 +433,51 @@ const History = () => {
               </tr>
             </thead>
             <tbody>
-              {dataReserve?.map((record) => (
-                <tr key={record._id} className="even:bg-blue-gray-50/50 hover:bg-lightOrange/30">
-                  <td className="p-2">
-                    <p>{record.name}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{record.ISBN}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{formatDate(record.reserveDate)}</p>
-                  </td>
-                  <td className="p-2">
-                    <p>{formatDate(record.pickupDate)}</p>
-                  </td>
-                  <td className="p-2">
-                    <StatusChip status={record.status} />
-                  </td>
-                </tr>
+            {dataReserve.reservations.map((record) => (
+                <>
+                {record?.books.map((detail, index) => (
+                  <tr key={`${record.id}${detail.id}`} className="">
+                    <td className='p-2 border border-blue-gray-50'>
+                      <p>{detail.isbn}</p>
+                    </td>
+                    <td className='p-2 border border-blue-gray-50'>
+                      <p>{detail.name}</p>
+                    </td>
+                    {index === 0 && 
+                      <>
+                        <td className="p-2 border border-blue-gray-100" rowSpan={record.books.length}>
+                          <p>{formatDate(record.reservedDate)}</p>
+                        </td>
+                        <td className="p-2 border border-blue-gray-100" rowSpan={record.books.length}>
+                          <p>{formatDate(record.pickupDate)}</p>
+                        </td>
+                      </>
+                    }
+                    {index === 0 && 
+                      <td className="p-2 border border-blue-gray-100" rowSpan={record.books.length}>
+                        <StatusChip status={record.status} />
+                      </td>
+                    }
+                  </tr>
+                ))}
+                </>
               ))}
             </tbody>
           </table>
         </div>
-        <Pagination/>
+        <Pagination 
+          className={"mx-auto w-fit"} 
+          numPages={dataReserve.totalPages} 
+          currentPage={dataReserve.pageNumber}
+          onPageClick={(page) => 
+            setDataReserve({
+              ...dataReserve,
+              pageNumber: page
+            })
+          }
+          onPrevClick={prevPageReserve}
+          onNextClick={nextPageReserve}
+          />
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export const getBooks = async (page, searchBy="", query="", sortBy="") => {
   try{
-    const res = await instance.get(`/books?page=${page}&search-by=${searchBy}&query=${query}&sort-by=${sortBy}`);
+    const res = await instance.get(`librarian/books?page=${page}&search-by=${searchBy}&query=${query}&sort-by=${sortBy}`);
     return res.data;
   } catch (err){
     console.log(err.response);
