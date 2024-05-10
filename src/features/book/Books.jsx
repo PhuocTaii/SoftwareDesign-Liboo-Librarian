@@ -1,13 +1,9 @@
 import React, {useState, useEffect} from 'react'
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-import { Button } from '@material-tailwind/react';
-import { BiBookOpen, BiSolidBookAdd } from 'react-icons/bi';
 import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
-import CustomButton from '../../components/CustomButton';
 import { getBooks } from './bookApi';
+import { PiBookLight } from "react-icons/pi";
 
 const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed'];
 
@@ -107,7 +103,7 @@ const Books = () => {
                 <td className="p-2 w-12 h-12">
                   {record.image?.secureUrl ?
                   <img src={record.image.secureUrl} alt="logo" className="w-full h-full object-contain" />:
-                  <BiBookOpen className='w-full h-full' />
+                  <PiBookLight className='w-full h-full' />
                   }
                 </td>
                 <td className="p-2">
