@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import { borrowBook, getNotPickUpToday, updateReservationPickup } from './transactionApi';
 import SearchBook from './SearchBook'
 import SearchBar from '../../components/SearchBar';
+import { useDispatch } from 'react-redux';
+import { setSelectedItem } from '../../slices/menu';
 
 const EXPIRATION = 30;
 const TABLE_HEAD = ['Reserve date' , 'Reader name', 'Reader email', 'ISBN', 'Book name', ''];
@@ -18,6 +20,9 @@ const StatusChip = () => {
 
 // Borrow page
 const Borrow = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(3));
+
   const [selectedReservation, setSelectedReservation] = useState(null)
 
   const tempBorrowedDate = new Date()
