@@ -4,11 +4,16 @@ import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
 import { getBooks } from './bookApi';
 import { PiBookLight } from "react-icons/pi";
+import { useDispatch } from 'react-redux';
+import { setSelectedItem } from '../../slices/menu';
 
 const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 'Price', 'Quantity', 'Borrowed'];
 
 // Book page
 const Books = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(2));
+
   const dataEmpty = {
     books: [],
     pageNumber: 0,

@@ -14,6 +14,8 @@ import Pagination from '../../components/Pagination';
 import {formatDate} from '../../helpers/dateFormat';
 import { BiChevronDown } from 'react-icons/bi'
 import { getBorrows, getRenews, getReservations } from './dashboardApi';
+import { useDispatch } from 'react-redux';
+import { setSelectedItem } from '../../slices/menu';
 
 const StatusChip = ({status}) => {
   if(status) {
@@ -79,6 +81,9 @@ const TABLE_RENEWAL_HEAD = ['ISBN', 'Book name', 'Renew date'];
 const TABLE_RESERVATION_HEAD = ['ISBN', 'Book name', 'Reserve date', 'Pickup date', 'Status'];
 
 const History = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(5));
+
   // BORROW
   // const [selectedFilterBororw, setSelectedFilterBorrow] = useState(0);
   const handleSearchBorrow = (e) => {

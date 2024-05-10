@@ -4,6 +4,8 @@ import CustomButton from "../../components/CustomButton";
 import { formatDate } from '../../helpers/dateFormat';
 import { getReturnBookInfo, getTransactionBook, returnBook } from "./transactionApi";
 import { currencyFormat } from "../../helpers/currency";
+import { useDispatch } from 'react-redux';
+import { setSelectedItem } from '../../slices/menu';
 
 const NOTE = {
   UNCHECK: '',
@@ -12,6 +14,9 @@ const NOTE = {
 }
 // Return page
 const Return = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(4));
+
   const today = new Date()
   const [transaction, setTransaction] = useState({
     email:'', 

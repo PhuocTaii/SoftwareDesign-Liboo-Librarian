@@ -5,10 +5,15 @@ import Pagination from '../../components/Pagination';
 import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
 import { getReaders } from './accountApi';
+import { useDispatch } from 'react-redux';
+import { setSelectedItem } from '../../slices/menu';
 
 const TABLE_HEAD = ['', 'Name', 'Email', 'Identifier', 'Gender', 'Phone', 'Birthdate', 'Address', 'Reg. date', 'Exp. date', 'Membership'];
 
 const Accounts = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(1));
+
   const dataEmpty = {
     users: [],
     pageNumber: 0,

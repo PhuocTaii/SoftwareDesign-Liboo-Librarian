@@ -20,7 +20,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from 'react-redux';
 import { getBorrowingBooks, getPendingReservations, getTotalActiveBorrowers, getBookBorrowedCount } from './dashboardApi';
-
+import { setSelectedItem } from '../../slices/menu';
 
 ChartJS.register(
   CategoryScale,
@@ -48,6 +48,9 @@ const options = {
 };
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
+  dispatch(setSelectedItem(0));
+
   const [selectedYear, setSelectedYear] = useState(new Date());
 
   const [borrowingBooks, setBorrowingBooks] = useState([0]);
@@ -64,7 +67,6 @@ const Dashboard = () => {
     ],
   });
 
-  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.currentUser);
   const token = user?.refresh_token;
 
@@ -109,8 +111,6 @@ const Dashboard = () => {
       })
     })
   }, [selectedYear])
-
-
   
   return (
     <div className="flex w-full h-full flex-col">

@@ -106,7 +106,6 @@ const MenuSidebar = () => {
                       icon={item.icon}
                       text={item.text}
                       active={selectedItem === index}
-                      onClick={() => dispatch(setSelectedItem(index))}
                     />
                   </Link>
                 )
