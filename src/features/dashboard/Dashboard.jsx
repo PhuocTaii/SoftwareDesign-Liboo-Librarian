@@ -67,30 +67,27 @@ const Dashboard = () => {
     ],
   });
 
-  const user = useSelector((state) => state.auth.currentUser);
-  const token = window.localStorage.getItem('access_token')
-
   useEffect(() => {
-    getBorrowingBooks(token).then((data) => {
+    getBorrowingBooks().then((data) => {
       setBorrowingBooks(data.length);
     })
-    getPendingReservations(token).then((data) => {
+    getPendingReservations().then((data) => {
       setPendingReservations(data.length);
     })
-    getTotalActiveBorrowers(token).then((data) => {
+    getTotalActiveBorrowers().then((data) => {
       setTotalActiveBorrowers(data);
     })
   }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      getBorrowingBooks(token).then((data) => {
+      getBorrowingBooks().then((data) => {
         setBorrowingBooks(data.length);
       })
-      getPendingReservations(token).then((data) => {
+      getPendingReservations().then((data) => {
         setPendingReservations(data.length);
       })
-      getTotalActiveBorrowers(token).then((data) => {
+      getTotalActiveBorrowers().then((data) => {
         setTotalActiveBorrowers(data);
       })  
     }, 1000 * 60);
@@ -99,7 +96,7 @@ const Dashboard = () => {
   }, [])
 
   useEffect(() => {
-    getBookBorrowedCount(selectedYear.getFullYear(), token).then((dataset) => {
+    getBookBorrowedCount(selectedYear.getFullYear()).then((dataset) => {
       setData({
         ...data,
         datasets: [
