@@ -79,7 +79,6 @@ export const getBorrows = async (page, filterIdx, dateFrom, dateTo) => {
 
   try{
     const res = await instance.get(`/librarian/all-transactions?page=${page}&filter-by=${filterOption()}&from=${dateFrom}&to=${dateTo}`);
-    console.log(res.data)
     return res.data;
   } catch (err){
     console.log(err.response);
@@ -100,7 +99,6 @@ export const getRenews = async (page, filterIdx, dateFrom, dateTo) => {
       const res = await instance.get(`/librarian/renewals?page=${page}&from=${dateFrom}&to=${dateTo}`);
       return res.data;
     } catch (err){
-      console.log(err.response);
       return null
     }
 }
@@ -128,7 +126,6 @@ export const getReservations = async (page, filterIdx, dateFrom, dateTo) => {
     const res = await instance.get(`/librarian/reservations?page=${page}&filter-by=${filterOption()}&from=${dateFrom}&to=${dateTo}`);
     return res.data;
   } catch (err){
-    console.log(err.response);
     return null
   }
 }

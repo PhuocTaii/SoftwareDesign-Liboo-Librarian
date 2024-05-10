@@ -66,7 +66,7 @@ const Dashboard = () => {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.currentUser);
-  const token = user?.refresh_token;
+  const token = window.localStorage.getItem('access_token')
 
   useEffect(() => {
     getBorrowingBooks(token).then((data) => {

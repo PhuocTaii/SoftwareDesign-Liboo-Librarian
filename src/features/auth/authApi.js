@@ -9,7 +9,10 @@ export const login = async (user, dispatch, navigate) => {
         const res = await axios.post('/authentication/librarian/login', user, {
             'Content-Type': 'application/json'
         })
-        dispatch(slice.signInSuccess(res.data))
+        window.localStorage.setItem('access_token', res.data.access_token);
+        window.localStorage.setItem('refresh_token', res.data.refresh_token);
+        dispatch(slice.signInSuccess(res.data.user))
+
         toast.success('Login successfully!');
         navigate('/');
     } catch(err){
@@ -26,6 +29,7 @@ export const logout = async (dispatch, token) => {
                 'Authorization': `Bearer ${token}`}
         })
         dispatch(slice.logoutSuccess());
+        window.localStorage.clear();
         toast.success('Logout successfully!');
     } catch(err){
         dispatch(slice.logoutFailure());
