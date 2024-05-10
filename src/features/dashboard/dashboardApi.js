@@ -6,48 +6,36 @@ import { instance } from "../../config/axiosConfig";
 
 const url = "http://localhost:8080/api"
 
-export const getBorrowingBooks = async (token) => {
+export const getBorrowingBooks = async () => {
     try{
-        const res = await axios.get(`${url + '/librarian/borrowing-books'}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`}
-        })
+        const res = await instance.get(`/librarian/borrowing-books`);
         return res.data;
     } catch(err){
         toast.error(err.response);
     }
 }
 
-export const getPendingReservations = async (token) => {
+export const getPendingReservations = async () => {
     try{
-        const res = await axios.get(`${url + '/librarian/pending-reservations'}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`}
-        })
+        const res = await instance.get(`/librarian/pending-reservations`);
         return res.data;
     } catch(err){
         toast.error(err.response);
     }
 }
 
-export const getTotalActiveBorrowers = async (token) => {
+export const getTotalActiveBorrowers = async () => {
     try{
-        const res = await axios.get(`${url + '/librarian/total-active-borrowers'}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`}
-        })
+        const res = await instance.get(`/librarian/total-active-borrowers`);
         return res.data;
     } catch(err){
         toast.error(err.response);
     }
 }
 
-export const getBookBorrowedCount = async (year, token) => {
+export const getBookBorrowedCount = async (year) => {
     try{
-        const res = await axios.get(`${url + '/librarian/book-borrowed-count?year=' + year}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`}
-        })
+        const res = await instance.get(`/librarian/book-borrowed-count?year=${year}`);
         return res.data;
     } catch(err){
         toast.error(err.response);
@@ -55,7 +43,6 @@ export const getBookBorrowedCount = async (year, token) => {
 }
 
 export const getBorrows = async (page, filterIdx, dateFrom, dateTo) => {
-  console.log(filterIdx)
   const filterOption = () => {
       switch(filterIdx){
       case 1:
