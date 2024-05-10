@@ -62,7 +62,7 @@ const MenuItem = ({ icon, text, active, onClick }) => {
 const MenuSidebar = () => {
   // const location = useLocation();
   const { toggle, selectedItem } = useSelector((state) => state.menu)
-  const token = useSelector((state) => state.auth.currentUser.refresh_token);
+  const token = window.localStorage.getItem('access_token');
 
 
   const dispatch = useDispatch()
