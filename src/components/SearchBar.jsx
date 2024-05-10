@@ -10,11 +10,9 @@ import {
 } from '@material-tailwind/react'
 import {debounce} from 'lodash'
 
-const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, onSearch, placeholder="Search..."}) => {
+const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, searchTerm, setSearchTerm, onSearch, placeholder="Search..."}) => {
 
   const [openMenu, setOpenMenu] = useState(false)
-
-  const [searchTerm, setSearchTerm] = useState('')
 
   const debounceSearch = useCallback(
     debounce((searchTerm, selectedFilter, selectedSort) => {
@@ -23,18 +21,9 @@ const SearchBar = ({filters, selectedFilter, setSelectedFilter, selectedSort, on
     []
   );
 
-  const handleSearch = () => {
-    // const searchTerm = e.target.value;
-
-    // if (searchTerm === '') {
-    //   return;
-    // }
-    debounceSearch(searchTerm, selectedFilter, selectedSort);
-  }
-
   useEffect(() => {
-    handleSearch()
-  }, [searchTerm, selectedFilter, selectedSort])
+    debounceSearch(searchTerm, selectedFilter, selectedSort);
+  }, [searchTerm, selectedFilter, selectedSort, debounceSearch])
 
   return (
     <div className="flex w-full sm:w-[23rem]">
