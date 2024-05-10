@@ -74,16 +74,13 @@ const MenuFilter = ({filters, selectedFilter, setSelectedFilter, openMenu, setOp
   )
 }
 
-const TABLE_BORROW_HEAD = ['ISBN', 'Book name', 'Borrow date', 'Due date', 'Return date', 'Fine', 'Renewal count'];
-const TABLE_RENEWAL_HEAD = ['ISBN', 'Book name', 'Renew date'];
-const TABLE_RESERVATION_HEAD = ['ISBN', 'Book name', 'Reserve date', 'Pickup date', 'Status'];
+const TABLE_BORROW_HEAD = ['Email', 'Name', 'ISBN', 'Book name', 'Borrow date', 'Due date', 'Return date', 'Fine', 'Renewal count'];
+const TABLE_RENEWAL_HEAD = ['Email', 'Name', 'ISBN', 'Book name', 'Renew date'];
+const TABLE_RESERVATION_HEAD = ['Email', 'Name', 'ISBN', 'Book name', 'Reserve date', 'Pickup date', 'Status'];
 
 const History = () => {
   // BORROW
   // const [selectedFilterBororw, setSelectedFilterBorrow] = useState(0);
-  const handleSearchBorrow = (e) => {
-    
-  }
   const dateTypesBorrow = ['None', 'Borrow date', 'Due date', 'Return date']
   const [selectedDateTypeBorrow, setSelectedDateTypeBorrow] = useState(0)
   const [openMenu, setOpenMenu] = useState(false)
@@ -100,24 +97,23 @@ const History = () => {
 
   // RENEW
   // const [selectedFilterRenew, setSelectedFilterRenew] = useState(0);
-  const handleSearchRenew = (e) => {
-    
-  }
+  const dateTypesRenew = ['None', 'Renew date']
+  const [selectedDateTypeRenew, setSelectedDateTypeRenew] = useState(0)
+
+  const [openRenewMenu, setOpenRenewMenu] = useState(false)
+
   const [dataRenew, setDataRenew] = useState({
-    renewals: [],
+    objectsList: [],
     totalPages: 1,
     pageNumber: 0
   })
-  const [selectedDateTypeRenew, setSelectedDateTypeRenew] = useState({
+  const [selectedDatesRenew, setSelectedDatesRenew] = useState({
     from: "",
     to: ""
   })
 
   // RESERVE
   // const [selectedFilterReserve, setSelectedFilterReserve] = useState(0);
-  const handleSearchReserve = (e) => {
-    
-  }
   const dateTypesReserve = ['None', 'Reserve date', 'Pickup date']
   const [selectedDateTypeReserve, setSelectedDateTypeReserve] = useState(0)
   const [openMenuReserve, setOpenMenuReserve] = useState(false)
@@ -153,12 +149,14 @@ const History = () => {
 
   // Paging renewals
   useEffect(() => {
-    getRenews(dataRenew.pageNumber, "renew-date", selectedDateTypeRenew.from, selectedDateTypeRenew.to).then((data) => {
+    console.log(selectedDateTypeRenew, selectedDatesRenew.from, selectedDatesRenew.to)
+    getRenews(dataRenew.pageNumber, selectedDateTypeRenew, selectedDatesRenew.from, selectedDatesRenew.to).then((data) => {
       if(data != null) {
+        console.log(data)
         setDataRenew(data)
       }
     })
-  }, [dataRenew.pageNumber, "renew-date", selectedDateTypeRenew])
+  }, [dataRenew.pageNumber, selectedDateTypeRenew, selectedDatesRenew])
   const prevPageRenew = () => {
     if(dataRenew.pageNumber > 0) {
       setDataRenew({...dataRenew, pageNumber: dataRenew.pageNumber - 1})
@@ -251,6 +249,12 @@ const History = () => {
                   {record?.transactionBooks.map((detail, index) => (
                     <tr key={detail.id} className="" onClick={() => setSelectedId(detail.id)}>
                       <td className='p-2 border border-blue-gray-50'>
+                        <p>{record.user.email}</p>
+                      </td>
+                      <td className='p-2 border border-blue-gray-50'>
+                        <p>{record.user.name}</p>
+                      </td>
+                      <td className='p-2 border border-blue-gray-50'>
                         <p>{detail.book.isbn}</p>
                       </td>
                       <td className='p-2 border border-blue-gray-50'>
@@ -303,37 +307,38 @@ const History = () => {
           <p className='font-semibold text-2xl pb-4'>RENEWALS</p>
           {/* Search bar */}
           <div className='w-full flex flex-col justify-between gap-4'>
-            <div className='flex gap-2 items-center'>
-              <p>Filter <span className='font-semibold'>Renew date</span> from</p>
-              <div className='w-fit'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-from'
-                />
-              </div>
-              <p>to</p>
-              <div className='w-fit'>
-                <Input
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                  containerProps={{
-                    className: "min-w-0",
-                  }}
-                  className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                  type="date"
-                  // onChange={handleChangeInfo}
-                  name='filter-to' 
-                />
-              </div>
+          <div className='flex gap-2 items-center'>
+              <p>Filter</p>
+              <MenuFilter
+                filters={dateTypesRenew}
+                selectedFilter={selectedDateTypeRenew}
+                setSelectedFilter={setSelectedDateTypeRenew}
+                openMenu={openRenewMenu}
+                setOpenMenu={setOpenRenewMenu}
+              />
+              {
+                selectedDateTypeRenew !== 0 &&
+                <>
+                  <p>from</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesRenew({
+                        ...selectedDatesRenew,
+                        from: e.target.value})
+                    }
+                    value={selectedDatesRenew.from}
+                  />
+                  <p>to</p>
+                  <InputDate
+                    onChange={(e) =>
+                      setSelectedDatesRenew({
+                        ...selectedDatesRenew,
+                        to: e.target.value})
+                    }
+                    value={selectedDatesRenew.to}
+                  />
+                </>
+              }
             </div>
           </div>
         </div>
@@ -349,16 +354,22 @@ const History = () => {
               </tr>
             </thead>
             <tbody>
-              {dataRenew.renewals.map((record) => (
-                <tr key={record.id} className="even:bg-blue-gray-50/50">
+              {dataRenew.objectsList.map((record) => (
+                <tr key={record.renewal.id} className="even:bg-blue-gray-50/50">
                   <td className="p-2">
-                    <p>{record.transactionBook?.book?.isbn}</p>
+                    <p>{record.user.email}</p>
                   </td>
                   <td className="p-2">
-                    <p>{record.transactionBook?.book?.name}</p>
+                    <p>{record.user.name}</p>
                   </td>
                   <td className="p-2">
-                    <p>{formatDate(record.requestDate)}</p>
+                    <p>{record.renewal.transactionBook?.book?.isbn}</p>
+                  </td>
+                  <td className="p-2">
+                    <p>{record.renewal.transactionBook?.book?.name}</p>
+                  </td>
+                  <td className="p-2">
+                    <p>{formatDate(record.renewal.requestDate)}</p>
                   </td>
                 </tr>
               ))}
@@ -437,6 +448,12 @@ const History = () => {
                 <>
                 {record?.books.map((detail, index) => (
                   <tr key={`${record.id}${detail.id}`} className="">
+                    <td className='p-2 border border-blue-gray-50'>
+                      <p>{record.user.email}</p>
+                    </td>
+                    <td className='p-2 border border-blue-gray-50'>
+                      <p>{record.user.name}</p>
+                    </td>
                     <td className='p-2 border border-blue-gray-50'>
                       <p>{detail.isbn}</p>
                     </td>

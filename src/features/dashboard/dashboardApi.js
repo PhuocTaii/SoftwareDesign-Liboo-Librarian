@@ -73,13 +73,13 @@ export const getBorrows = async (page, filterIdx, dateFrom, dateTo) => {
     }
   }
 
-  console.log(filterOption())
 
   if(filterOption() !== "" && (dateFrom === "" || dateTo === ""))
     return null
 
   try{
     const res = await instance.get(`/librarian/all-transactions?page=${page}&filter-by=${filterOption()}&from=${dateFrom}&to=${dateTo}`);
+    console.log(res.data)
     return res.data;
   } catch (err){
     console.log(err.response);
@@ -95,7 +95,7 @@ export const getRenews = async (page, filterIdx, dateFrom, dateTo) => {
       dateFrom = ""
       dateTo = ""
     }
-  
+
     try{
       const res = await instance.get(`/librarian/renewals?page=${page}&from=${dateFrom}&to=${dateTo}`);
       return res.data;
