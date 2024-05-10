@@ -6,28 +6,32 @@ import SearchBar from '../../components/SearchBar';
 import { Select, Option } from '@material-tailwind/react';
 import { getReaders } from './accountApi';
 
-const TABLE_HEAD = ['', 'ID', 'Name', 'Email', 'Identifier number', 'Gender', 'Phone', 'Birthdate', 'Address', 'Reg. date', 'Exp. date', 'Membership'];
+const TABLE_HEAD = ['', 'Name', 'Email', 'Identifier', 'Gender', 'Phone', 'Birthdate', 'Address', 'Reg. date', 'Exp. date', 'Membership'];
 
 const Accounts = () => {
-  const [data, setData] = useState({
+  const dataEmpty = {
     users: [],
     pageNumber: 0,
     totalPages: 0,
     totalItems: 0
-  });
+  }
+
+  const [data, setData] = useState(dataEmpty);
+
+  const filterSearch = ['name', 'email']
+  const [selectedFilter, setSelectedFilter] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    getReaders(data.pageNumber).then((res) => {
+    console.log("paging")
+
+    getReaders(data.pageNumber, filterSearch[selectedFilter], searchTerm, selectedSort).then((res) => {
       if(res !== null) {
         setData(res);
       }
       else {
-        setData({
-          users: [],
-          pageNumber: 0,
-          totalPages: 0,
-          totalItems: 0
-        })
+        setData(dataEmpty)
       }
     })
   }, [data.pageNumber])
@@ -42,23 +46,14 @@ const Accounts = () => {
     }
   }
 
-  const filterSearch = ['name', 'email']
-  const [selectedFilter, setSelectedFilter] = useState(0);
-  const [selectedSort, setSelectedSort] = useState('');
-
   const handleSearch = (searchTerm, filterBy, selectedSort) => {
+    console.log("searching")
+
     getReaders(data.pageNumber, filterSearch[filterBy], searchTerm, selectedSort).then((res) => {
-      if(res !== null) {
+      if(res !== null)
         setData(res);
-      }
-      else {
-        setData({
-          users: [],
-          pageNumber: 0,
-          totalPages: 0,
-          totalItems: 0
-        })
-      }
+      else
+        setData(dataEmpty)
     })
   }
 
@@ -72,6 +67,8 @@ const Accounts = () => {
           selectedFilter={selectedFilter}
           setSelectedFilter={setSelectedFilter}
           selectedSort={selectedSort}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
         />
         <div className="w-72">
           <Select 
@@ -114,9 +111,6 @@ const Accounts = () => {
                     :
                     <BiUserCircle className='w-full h-full' />
                   }
-                </td>
-                <td className="p-2">
-                  <p>{record.id}</p>
                 </td>
                 <td className="p-2">
                   <p>{record.name}</p>

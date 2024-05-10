@@ -13,27 +13,28 @@ const TABLE_HEAD = ['', 'ISBN', 'Name', 'Author', 'Publisher', 'Year', 'Genre', 
 
 // Book page
 const Books = () => {
-  const dispatch = useDispatch();
-  const [data, setData] = useState({
+  const dataEmpty = {
     books: [],
     pageNumber: 0,
     totalPages: 0,
     totalItems: 0
-  });
+  }
+
+  const [data, setData] = useState(dataEmpty);
+
+  const filterSearch = ['name', 'isbn']
+  const [selectedFilter, setSelectedFilter] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    getBooks(data.pageNumber).then((res) => {
-      if(res !== null) {
+    console.log("paging")
+
+    getBooks(data.pageNumber, filterSearch[selectedFilter], searchTerm, selectedSort).then((res) => {
+      if(res !== null)
         setData(res);
-      }
-      else {
-        setData({
-          books: [],
-          pageNumber: 0,
-          totalPages: 0,
-          totalItems: 0
-        })
-      }
+      else
+        setData(dataEmpty)
     })
   }, [data.pageNumber])
   const prevPage = () => {
@@ -47,23 +48,14 @@ const Books = () => {
     }
   }
 
-  const filterSearch = ['name', 'isbn']
-  const [selectedFilter, setSelectedFilter] = useState(0);
-  const [selectedSort, setSelectedSort] = useState('');
-
   const handleSearch = (searchTerm, filterBy, selectedSort) => {
+    console.log("searching")
+
     getBooks(data.pageNumber, filterSearch[filterBy], searchTerm, selectedSort).then((res) => {
-      if(res !== null) {
+      if(res !== null)
         setData(res);
-      }
-      else {
-        setData({
-          books: [],
-          pageNumber: 0,
-          totalPages: 0,
-          totalItems: 0
-        })
-      }
+      else
+        setData(dataEmpty)
     })
   }
 
@@ -76,6 +68,8 @@ const Books = () => {
           selectedFilter={selectedFilter}
           setSelectedFilter={setSelectedFilter}
           selectedSort={selectedSort}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
         />
         <div className="w-72">
           <Select 
