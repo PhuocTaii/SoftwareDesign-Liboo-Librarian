@@ -87,6 +87,7 @@ const Borrow = () => {
       dueDate: new Date(tempBorrowedDate.getFullYear(), tempBorrowedDate.getMonth(), tempBorrowedDate.getDate() + EXPIRATION).toISOString().split('T')[0]
     });
     setBookNameSearch("")
+    setSelectedReservation(null)
   }
 
   const [notPickUpToday, setNotPickUpToday] = useState({
@@ -124,6 +125,7 @@ const Borrow = () => {
     })
   }
 
+  const [searchTermNotPickup, setSearchTermNotPickup] = useState('');
   const handleSearch = (searchTerm) => {
     getNotPickUpToday(notPickUpToday.pageNumber, searchTerm).then((data) => {
       console.log(data);
@@ -202,6 +204,8 @@ const Borrow = () => {
             setSelectedFilter={null}
             selectedSort={null}
             placeholder='Enter reader name'
+            searchTerm={searchTermNotPickup}
+            setSearchTerm={setSearchTermNotPickup}
           />
         </div>
           <table className="w-full min-w-max table-auto text-left">
@@ -224,10 +228,10 @@ const Borrow = () => {
                         <td className="p-2 border border-blue-gray-100" rowSpan={record.books.length}>
                           <p>{formatDate(record.reservedDate)}</p>
                         </td>
-                        <td className='p-2 border border-blue-gray-50'>
+                        <td className='p-2 border border-blue-gray-50' rowSpan={record.books.length}>
                           <p>{record.user.name}</p>
                         </td>
-                        <td className='p-2 border border-blue-gray-50'>
+                        <td className='p-2 border border-blue-gray-50' rowSpan={record.books.length}>
                           <p>{record.user.email}</p>
                         </td>
                       </>
