@@ -253,12 +253,16 @@ const History = () => {
                 <>
                   {record?.transactionBooks.map((detail, index) => (
                     <tr key={detail.id} className="" onClick={() => setSelectedId(detail.id)}>
-                      <td className='p-2 border border-blue-gray-50'>
-                        <p>{record.user.email}</p>
-                      </td>
-                      <td className='p-2 border border-blue-gray-50'>
-                        <p>{record.user.name}</p>
-                      </td>
+                      {index === 0 && 
+                        <>
+                          <td className='p-2 border border-blue-gray-50' rowSpan={record.transactionBooks.length}>
+                            <p>{record.user.email}</p>
+                          </td>
+                          <td className='p-2 border border-blue-gray-50' rowSpan={record.transactionBooks.length}>
+                            <p>{record.user.name}</p>
+                          </td>
+                        </>
+                      }
                       <td className='p-2 border border-blue-gray-50'>
                         <p>{detail.book.isbn}</p>
                       </td>
@@ -453,12 +457,16 @@ const History = () => {
                 <>
                 {record?.books.map((detail, index) => (
                   <tr key={`${record.id}${detail.id}`} className="">
-                    <td className='p-2 border border-blue-gray-50'>
-                      <p>{record.user.email}</p>
-                    </td>
-                    <td className='p-2 border border-blue-gray-50'>
-                      <p>{record.user.name}</p>
-                    </td>
+                    {index === 0 && 
+                      <>
+                        <td className='p-2 border border-blue-gray-50' rowSpan={record.books.length}>
+                          <p>{record.user.email}</p>
+                        </td>
+                        <td className='p-2 border border-blue-gray-50' rowSpan={record.books.length}>
+                          <p>{record.user.name}</p>
+                        </td>
+                      </>
+                    }
                     <td className='p-2 border border-blue-gray-50'>
                       <p>{detail.isbn}</p>
                     </td>
