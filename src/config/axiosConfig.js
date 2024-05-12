@@ -3,7 +3,8 @@ import {store} from '../store'
 
 store.subscribe(listener)
 
-axios.defaults.baseURL = 'http://localhost:8080/api';
+// axios.defaults.baseURL = 'http://localhost:8080/api';
+axios.defaults.baseURL = 'https://softwaredesign-liboo-server-production.up.railway.app/api';
 
 function select(state) {
   return window.localStorage.getItem('access_token')
@@ -16,7 +17,8 @@ function getLocalRefreshToken() {
 
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  // baseURL: 'http://localhost:8080/api',
+  baseURL: 'https://softwaredesign-liboo-server-production.up.railway.app/api',
 })
 
 // Add a response interceptor
